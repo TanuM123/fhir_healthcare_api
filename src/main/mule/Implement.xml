@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="GetAllPatients" doc:id="edd896c3-ae6a-45d5-9552-d884112574b8" >
+		<salesforce:query doc:name="GetAllPatient" doc:id="703cf6a3-9f08-4b98-9dfa-db8ccbcabc70" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT BillingCity,BillingCountry,HealthCloudGA__Age__pc,HealthCloudGA__IndividualId__c,HealthCloudGA__MedicalRecordNumber__c,Name
+FROM Account]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="1b2f98da-477e-4490-93bc-8688b5eceafe" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="CreateOrUpdate-fhir+json" doc:id="1ef63cd8-e381-4edd-b16d-90bf7dd0eda3" >
+		<ee:transform doc:name="java to json" doc:id="b5e1b081-23a9-41ae-aace-61393bfcfaf4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[
+%dw 2.0
+output application/json
+---
+[
+    {
+        "Name":(payload.name filter((item,index)-> item.use=="usual")).given[0],
+        "BillingCity":payload.address.city[0],
+        "BillingState":payload.address.state[0],
+        "BillingCountry":payload.address.country[0],
+        "HealthCloudGA__MedicalRecordNumber__c":payload.Id,
+        "Phone":(payload.telecom filter((it,in)-> it.use=="mobile")).value[0]
+    }
+]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:upsert objectType="Account" externalIdFieldName="Id" doc:name="Upsert" doc:id="d77f003d-74ee-4c9c-ba61-877849e088ed" config-ref="Salesforce_Config"/>
+		<ee:transform doc:name="Transform Message" doc:id="e6f186e8-bd90-4acc-bbb3-76c9e49d655f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "message":"Patient Data Added Successfully",
+    "status":payload.successful
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

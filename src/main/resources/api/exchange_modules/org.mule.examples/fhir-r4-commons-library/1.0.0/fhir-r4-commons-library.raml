@@ -1,0 +1,2544 @@
+#%RAML 1.0 Library
+
+types:
+
+  decimal:
+    type: number
+    description: |
+      Rational numbers that have a decimal representation. See below about the precision of the number.
+      Regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
+  
+  uri:
+    type: string
+    description: |
+      A Uniform Resource Identifier Reference (see: https://tools.ietf.org/html/rfc3986).
+      Note: URIs are case sensitive. For UUID (urn:uuid:53fefa32-fcbb-4ff8-8a92-55ee120877b7) use all lowercase.
+      URIs can be absolute or relative, and may have an optional fragment identifier.
+      Regex: \S*
+
+  url:
+    type: string
+    description: |
+      A Uniform Resource Locator (RFC 1738 ). Note URLs are accessed directly using the specified protocol. Common URL protocols are http{s}:, ftp:, mailto: and mllp:, though many others are defined.
+
+  canonical:
+    type: uri
+    description: |
+      A URI that refers to a resource by its canonical URL (resources with a url property). The canonical type differs from a uri in that it has special meaning in this specification, and in that it may have a version appended, separated by a vertical bar (|). Note that the type canonical is not used for the actual canonical URLs that are the target of these references, but for the URIs that refer to them, and may have the version suffix in them. Like other URIs, elements of type canonical may also have #fragment references
+
+  base64Binary:
+    type: string
+    pattern: (\s*([0-9a-zA-Z\+\=]){4}\s*)+
+    description: |
+      There is no specified upper limit to the size of a binary, but systems will have to impose some implementation based limit to the size they support. This should be clearly documented, though there is no computable for this at this time
+
+  instant:
+    type: string
+    description: |
+      An instant in time - known at least to the second and always includes a time zone.
+      Note: This is intended for precisely observed times (typically system logs etc.), and not human-reported times - for them, use date and dateTime. instant is a more constrained dateTime.
+      Note: This type is for system times, not human times (see date and dateTime).
+    pattern: ^[0-9]{4}(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))))$
+
+  date:
+    type: string
+    description: |
+      A date, or partial date (e.g. just year or year + month) as used in human communication. There is no time zone. Dates SHALL be valid dates
+    pattern: ^[0-9]{4}(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1]))?)?$
+    example: 1970-08-07
+
+  dateTime:
+    type: string
+    description: |
+      A date, date-time or partial date (e.g. just year or year + month) as used in human communication. If hours and minutes are specified, a time zone SHALL be populated.
+      Seconds must be provided due to schema type constraints but may be zero-filled and may be ignored. Dates SHALL be valid dates. The time "24:00" is not allowed
+    pattern: ^[0-9]{4}(-(0[1-9]|1[0-2])(-(0[0-9]|[1-2][0-9]|3[0-1])(T([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?(Z|(\+|-)((0[0-9]|1[0-3]):[0-5][0-9]|14:00)))?)?)?$
+  
+  time:
+    type: string
+    description: |
+      A time during the day, with no date specified (can be converted to a Duration since midnight).
+      Seconds must be provided due to schema type constraints but may be zero-filled and may be ignored.
+      The time "24:00" is not allowed, and neither is a time zone.
+    pattern: ([01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9](\.[0-9]+)?
+
+  code:
+    type: string
+    description: |
+      Indicates that the value is taken from a set of controlled strings defined elsewhere (see Using codes for further discussion).
+      Technically, a code is restricted to a string which has at least one character and no leading or trailing whitespace, and where there is no whitespace other than single spaces in the contents.
+    pattern: ^[^\s]+([\s]+[^\s]+)*
+  
+  oid: 
+    type: string
+    description: |
+      An OID represented as a URI (RFC 3001 ); e.g. urn:oid:1.2.3.4.5
+    pattern: urn:oid:[0-2](\.(0|[1-9][0-9]*))+
+
+  id:
+    type: string
+    pattern: ^[A-Za-z0-9\-\.]{1,64}$
+    description: |
+      Any combination of upper or lower case ASCII letters ('A'..'Z', and 'a'..'z', numerals ('0'..'9'), '-' and '.', with a length limit of 64 characters.
+      (This might be an integer, an un-prefixed OID, UUID or any other identifier pattern that meets these constraints.)
+  
+  markdown:
+    type: string
+    description: A FHIR string (see above) that may contain markdown syntax for optional processing by a markdown presentation engine, in the GFM extension of CommonMark format
+    pattern: \s*(\S|\s)*
+  
+  unsignedInt:
+    type: integer
+    description: Any non-negative integer (e.g. >= 0) Regex - [0]|([1-9][0-9]*)
+    minimum: 0
+
+  positiveInt:
+    type: integer
+    description: Any positive integer (e.g. >= 1) Regex - +?[1-9][0-9]*
+    minimum: 1  
+
+  uuid:
+    type: string
+    pattern: urn:uuid:^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$
+    description: |
+      A UUID (aka GUID) represented as a URI (RFC 4122 ); e.g. urn:uuid:c757873d-ec9a-4326-a141-556f43239520
+
+  dosageAsNeededBoolean:
+    properties:
+      asNeededBoolean:
+        description: Take "as needed"
+        type: boolean
+
+  dosageAsNeededCodeableConcept:
+    properties:
+      asNeededCodeableConcept:
+        description: Take "as needed"
+        type: CodeableConcept
+
+  dosageDoseRange:
+    properties:
+      doseRange?:
+        description: Amount of medication per dose
+        type: Range
+            
+  dosageDoseQuantity:
+    properties:
+      doseQuantity?:
+        description: Amount of medication per dose
+        type: SimpleQuantity
+
+  dosageRateRatio:
+    properties:
+      rateRatio?:
+        description: Amount of medication per unit of timen
+        type: Ratio
+          
+  dosageRateRange:
+    properties:
+      rateRange?:
+        description: Amount of medication per unit of time
+        type: Range
+        
+  dosageRateQuantity:
+    properties:
+      rateQuantity?:
+        description: Amount of medication per unit of time
+        type: SimpleQuantity   
+
+  Dosage:
+    description: How the medication is/was taken or should be taken
+    type: BackboneElement
+    properties:
+      sequence?:
+        description: The order of the dosage instructions
+        type: integer
+      text?:
+        description: Free text dosage instructions e.g. SIG
+        type: string
+      additionalInstruction?:
+        description: Supplemental instruction - e.g. "with meals"
+        type: CodeableConcept[]
+      patientInstruction?:
+        description: Patient or consumer oriented instructions
+        type: string
+      timing?:
+        description: When medication should be administered
+        type: Timing
+      asNeeded?:
+        type: dosageAsNeededBoolean | dosageAsNeededCodeableConcept
+        description: Take "as needed" (for x)
+      site?:
+        description: Body site to administer to
+        type: CodeableConcept
+      route?:
+        description: How drug should enter body
+        type: CodeableConcept
+      method?:
+        description: Technique for administering medication
+        type: CodeableConcept
+      
+      doseAndRate?:
+        type: array
+        items:
+          type: Element
+          properties:
+            type:
+              description: The kind of dose or rate specified
+              type: CodeableConcept
+            dose?:
+              type: dosageDoseRange | dosageDoseQuantity
+              description: Amount of medication per dose
+            rate?:
+              description: Amount of medication per unit of time
+              type: dosageRateRatio | dosageRateRange | dosageRateQuantity
+           
+      maxDosePerPeriod?:
+        description: Upper limit on medication per unit of time
+        type: Ratio
+      maxDosePerAdministration?:
+        description: Upper limit on medication per administration
+        type: SimpleQuantity
+      maxDosePerLifetime?:
+        description: Upper limit on medication per lifetime of the patient
+        type: SimpleQuantity
+      
+
+  xhtml:
+    type: string
+    description: |
+      Limited xhtml content (Escaped XHTML)
+
+  Narrative:
+    description: |
+      Any resource that is a DomainResource (almost all types of resource) may include a human-readable narrative that contains a summary of the resource,
+      and may be used to represent the content of the resource to a human.
+    properties:
+      status:
+        type: code
+        enum: [generated, extensions, additional, empty]
+      div:
+        description: Limited xhtml content
+        type: xhtml
+ 
+  Meta:
+    description: |
+      Each resource contains an element "meta", of type "Meta", which is a set of metadata that provides technical and workflow context to the resource.
+      The metadata items are all optional, though some or all of them may be required in particular implementations or contexts of use.
+    type: Element
+    properties:
+      versionId?:
+        description: Version specific identifier
+        type: id
+      lastUpdated?:
+        description: When the resource version last changed
+        type: instant
+      source?:
+        description: Identifies where the resource comes from
+        type: uri
+      profile?:
+        description: Profiles this resource claims to conform to
+        type: canonical[]
+      security?:
+        description: Security Labels applied to this resource
+        type: array
+        items: Coding
+      tag?:
+        description: Tags applied to this resource
+        type: array
+        items: Coding
+
+  ContactDetail:
+    description: |
+      Contact information Elements defined in Ancestors: id, extension
+    type: Element
+    properties:
+      name?:
+        type: string
+        description: Name of an individula to contact
+      telecom?:
+        description: Contact details for individual or organization
+        type: ContactPoint[]
+
+  Age:
+    type: Quantity
+    description: An age value
+
+  SimpleQuantity:
+    type: Quantity
+    description: The comparator is not used on a SimpleQuantity
+
+  Distance:
+    type: Quantity
+    description: A distance value
+
+  Count:
+    type: Quantity
+    description: A count value
+  
+  Reference:
+    type: Element
+    description: Many of the defined elements in a resource are references to other resources.
+      Using these references, the resources combine to build a web of information about healthcare.
+    properties:
+      reference?:
+        description: Literal reference, Relative, internal or absolute URL
+        type: string
+      identifier?:
+        description: Logical reference, when literal reference is not known
+        type: Identifier
+      display?:
+        description: Text alternative for the resource
+        type: string
+      type?: 
+        description: Type the reference refers to (e.g. "Patient")
+        type: uri
+
+
+  Element:
+    type: object
+    properties:
+      id?:
+        description: Internal id
+        type: id
+      extension?:
+        description: |
+          Additional Content defined by implementations - from Element: extension (recursive)
+        type: array
+        items: Extension
+  
+  enumvalueInteger:
+    properties:
+      valueInteger:
+        description: Value of extension.
+        type: integer
+  enumvalueDecimal:
+    properties:
+      valueDecimal:
+        description: Value of extension.
+        type: decimal
+  enumvalueDateTime:
+    properties:
+      valueDateTime:
+        description: Value of extension.
+        type: dateTime
+  enumvalueDate:
+    properties:
+      valueDate:
+        description: Value of extension.
+        type: date
+  enumvalueInstant:
+    properties:
+      valueInstant:
+        description: Value of extension.
+        type: instant
+  enumvalueString:
+    properties:
+      valueString:
+        description: Value of extension.
+        type: string
+  enumvalueUri:
+    properties:
+      valueUri:
+        description: Value of extension.
+        type: uri
+  enumvalueBoolean:
+    properties:
+      valueBoolean:
+        description: Value of extension.
+        type: boolean
+  enumvalueCode:
+    properties:
+      valueCode:
+        description: Value of extension.
+        type: code
+  enumvalueBase64Binary:
+    properties:
+      valueBase64Binary:
+        description: Value of extension.
+        type: base64Binary
+  enumvalueCoding:
+    properties:
+      valueCoding:
+        description: Value of extension.
+        type: Coding
+  enumvalueCodeableConcept:
+    properties:
+      valueCodeableConcept:
+        description: Value of extension.
+        type: CodeableConcept
+  enumvalueAttachment:
+    properties:
+      valueAttachment:
+        description: Value of extension.
+        type: Attachment
+  enumvalueIdentifier:
+    properties:
+      valueIdentifier:
+        description: Value of extension.
+        type: Identifier
+  enumvalueQuantity:
+    properties:
+      valueQuantity:
+        description: Value of extension.
+        type: Quantity
+  enumvalueRange:
+    properties:
+      valueRange:
+        description: Value of extension.
+        type: Range
+  enumvaluePeriod:
+    properties:
+      valuePeriod:
+        description: Value of extension.
+        type: Period
+  enumvalueRatio:
+    properties:
+      valueRatio:
+        description: Value of extension.
+        type: Range
+  enumvalueHumanName:
+    properties:
+      valueHumanName:
+        description: Value of extension.
+        type: HumanName
+  enumvalueAddress:
+    properties:
+      valueAddress:
+        description: Value of extension.
+        type: Address
+  enumvalueContactPoint:
+    properties:
+      valueContactPoint:
+        description: Value of extension.
+        type: ContactPoint
+  enumvalueReference:
+    properties:
+      valueReference:
+        description: Value of extension.
+        type: Reference
+  enumvalueCanonical:
+    properties:
+      valueCanonical:
+        description: Value of Extension
+        type: canonical
+  enumvalueId:
+    properties:
+      valueId:
+        description: Value of Extension
+        type: id
+  enumvalueMarkdown:
+    properties:
+      valueMarkdown:
+        description: Value of Extension
+        type: markdown
+  enumvalueOid:
+    properties:
+      valueOid:
+        description: Value of Extension
+        type: oid
+  enumvaluePositiveInt:
+    properties:
+      valuePositiveInt:
+        description: Value of Extension
+        type: positiveInt
+  enumvalueTime:
+    properties:
+      valueTime:
+        description: Value of Extension
+        type: time
+  enumvalueUnsignedInt:
+    properties:
+      valueUnsignedInt:
+        description: Value of Extension
+        type: unsignedInt
+  enumvalueUrl:
+    properties:
+      valueUrl:
+        description: Value of Extension
+        type: url
+  enumvalueUuid:
+    properties:
+      valueUuid:
+        description: Value of Extension
+        type: uuid
+  enumvalueAge:
+    properties:
+      valueAge:
+        description: Value of Extension
+        type: Age
+  enumvalueAnnotation:
+    properties:
+      valueAnnotation:
+        description: Value of Extension
+        type: Annotation
+  enumvalueCount:
+    properties:
+      valueCount:
+        description: Value of Extension
+        type: Count
+  enumvalueDistance:
+    properties:
+      valueDistance:
+        description: Value of Extension
+        type: Distance
+  enumvalueDuration:
+    properties:
+      valueDuration:
+        description: Value of Extension
+        type: Duration
+  enumvalueMoney:
+    properties:
+      valueMoney:
+        description: Value of Extension
+        type: Money
+  enumvalueSampledData:
+    properties:
+      valueSampledData:
+        description: Value of Extension
+        type: SampledData
+  enumvalueSignature:
+    properties:
+      valueSignature:
+        description: Value of Extension
+        type: Signature
+  enumvalueTiming:
+    properties:
+      valueTiming:
+        description: Value of Extension
+        type: Timing
+  enumvalueContactDetail:
+    properties:
+      valueContactDetail:
+        description: Value of Extension
+        type: ContactDetail
+  enumvalueContributor:
+    properties:
+      valueContributor:
+        description: Value of Extension
+        type: Contributor
+  enumvalueDataRequirement:
+    properties:
+      valueDataRequirement:
+        description: Value of Extension
+        type: DataRequirement
+  enumvalueExpression:
+    properties:
+      valueExpression:
+        description: Value of Extension
+        type: Expression
+  enumvalueParameterDefinition:
+    properties:
+      valueParameterDefinition:
+        description: Value of Extension
+        type: ParameterDefinition
+  enumvalueRelatedArtifact:
+    properties:
+      valueRelatedArtifact:
+        description: Value of Extension
+        type: RelatedArtifact
+  enumvalueTriggerDefinition:
+    properties:
+      valueTriggerDefinition:
+        description: Value of Extension
+        type: TriggerDefinition
+  enumvalueUsageContext:
+    properties:
+      valueUsageContext:
+        description: Value of Extension
+        type: UsageContext
+  enumvalueDosage:
+    properties:
+      valueDosage:
+        description: Value of Extension
+        type: Dosage
+  enumvalueMeta:
+    properties:
+      valueMeta:
+        description: Value of Extension
+        type: Meta
+  
+
+  
+  Extension:
+    type: Element
+    description: | 
+      Optional Extensions Element + Rule Must have either extensions or value[x], not both Elements defined in Ancestors id, extension
+    properties:
+      url: 
+        type: uri
+        description: identifies the meaning of the extension
+      value?:
+        description: Value of extension
+        type: enumvalueInteger | enumvalueDecimal | enumvalueDateTime | enumvalueDate | enumvalueInstant | enumvalueString | enumvalueUri | enumvalueBoolean | enumvalueCode | enumvalueBase64Binary | enumvalueCoding | enumvalueCodeableConcept | enumvalueAttachment | enumvalueIdentifier | enumvalueQuantity | enumvalueRange | enumvaluePeriod | enumvalueRatio | enumvalueHumanName | enumvalueAddress | enumvalueContactPoint | enumvalueReference | enumvalueCanonical | enumvalueId | enumvalueMarkdown | enumvalueOid | enumvaluePositiveInt | enumvalueTime | enumvalueUnsignedInt | enumvalueUrl | enumvalueUuid | enumvalueAge | enumvalueAnnotation | enumvalueCount | enumvalueDistance | enumvalueDuration | enumvalueMoney | enumvalueSampledData | enumvalueSignature | enumvalueTiming | enumvalueContactDetail | enumvalueContributor | enumvalueDataRequirement | enumvalueExpression | enumvalueParameterDefinition | enumvalueRelatedArtifact | enumvalueTriggerDefinition | enumvalueUsageContext | enumvalueDosage | enumvalueMeta
+        
+      
+  
+  Duration:
+    type: Quantity
+    description: a length of time
+
+  UnitOfTime:
+    type: code
+    description: A unit of time (UCUM)
+    enum: [s, min, h, d, wk, mo, a]
+
+  Range:
+    type: Element
+    description: A set of ordered Quantity values defined by a low and high limit.
+    properties:
+      low?:
+        description: Low limit
+        type: Quantity
+      high?:
+        description: High limit
+        type: Quantity
+
+  Ratio:
+    type: Element
+    description: A relationship between two Quantity values expressed as a numerator and a denominator.
+    properties:
+      numerator?:
+        description: Numerator value
+        type: Quantity
+      denominator?:
+        description: Denominator value
+        type: Quantity
+  
+  annotationauthorReference:
+    properties:
+      authorReference:
+        description: Individual responsible for the annotation.
+        type: Reference
+  annotationauthorString:
+    properties:
+      authorString:
+        description: Individual responsible for the annotation.
+        type: string
+
+
+  Annotation:
+    type: Element
+    description: A text note which also contains information about who made the statement and when.
+    properties:
+      author?:
+        type: annotationauthorReference | annotationauthorString
+        description: Individual responsible for the annotation 
+      time?:
+        description: When the annotation was made
+        type: dateTime
+      text:
+        description: The annotation  - text content
+        type: string
+
+  Period:
+    type: Element
+    description: A time period defined by a start and end date/time.
+    properties:
+      start?:
+        description: Starting time with inclusive boundary
+        type: dateTime
+      end?:
+        description: End time with inclusive boundary, if not ongoing
+        type: dateTime
+
+  Attachment:
+    type: Element
+    description: |
+      This type is for containing or referencing attachments - additional data content defined in other formats.
+      The most common use of this type is to include images or reports in some report format such as PDF.
+      However it can be used for any data that has a MIME type.
+    properties:
+      contentType?:
+        type: code
+        description: Mime type of the content, with charset etc.
+      language?:
+        type: code
+        description: Human language of the content (BCP-47)
+      data?:
+        description: Data inline, base64ed
+        type: base64Binary
+      url?:
+        description: Uri where the data can be found
+        type: uri
+      size?:
+        description: Number of bytes of content (if url provided)
+        type: unsignedInt
+      hash?:
+        description: Hash of the data (sha-1, base64ed)
+        type: base64Binary
+      title?:
+        description: Label to display in place of the data
+        type: string
+      creation?:
+        description: Date attachment was first created
+        type: dateTime
+
+  CodeableConcept:
+    type: Element
+    description: |
+      A CodeableConcept represents a value that is usually supplied by providing a reference to one or more terminologies or ontologies, but may also be defined by the provision of text.
+      This is a common pattern in healthcare data.
+    properties:
+      coding?:
+        description: Code defined by a terminology system
+        type: array
+        items: Coding
+      text?:
+        description: Plain text representation of the concept
+        type: string
+
+  Coding:
+    type: Element
+    description: |
+      A Coding is a representation of a defined concept using a symbol from a defined "code system".
+      See http://hl7.org/fhir/STU3/terminologies.html for more details.
+    properties:
+      system?:
+        description: Identity of the terminology system
+        type: uri
+      version?:
+        description: Version of the system - if relevant
+        type: string
+      code?:
+        description: Symbol in syntax defined by the system
+        type: code
+      display?:
+        description: Representation defined by the system
+        type: string
+      userSelected?: boolean
+
+  Quantity:
+    type: Element
+    description: A measured amount (or an amount that can potentially be measured).
+    properties:
+      value?:
+        description: Numerical value (with implicit precision)
+        type: decimal
+      comparator?:
+        description: how to understand the value
+        type: code
+        enum: ['<', '<=', '>=', '>']
+      unit?:
+        description: Unit representation
+        type: string
+      system?:
+       description: System that defines coded unit form
+       type: uri
+      code?:
+        description: Coded form of the unit
+        type: code
+
+  Money:
+    type: Element
+    description: |
+      An amount of economic utility in some recognized currency Elements defined in Ancestors: id, extension
+    properties:
+      value?:
+        type: decimal
+        description: Numerical value (with implicit precision)
+      currency?:
+        type: code
+        description: ISO 4217 Currency Code
+        enum: ["AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BHD","BIF","BMD","BND","BOB","BOV","BRL","BSD","BTN","BWP","BYN","BZD","CAD","CDF","CHE","CHF","CHW","CLF","CLP","CNY","COP","COU","CRC","CUC","CUP","CVE","CZK","DJF","DKK","DOP","DZD","EGP","ERN","ETB","EUR","FJD","FKP","GBP","GEL","GGP","GHS","GIP","GMD","GNF","GTQ","GYD","HKD","HNL","HRK","HTG","HUF","IDR","ILS","IMP","INR","IQD","IRR","ISK","JEP","JMD","JOD","JPY","KES","KGS","KHR","KMF","KPW","KRW","KWD","KYD","KZT","LAK","LBP","LKR","LRD","LSL","LYD","MAD","MDL","MGA","MKD","MMK","MNT","MOP","MRU","MUR","MVR","MWK","MXN","MXV","MYR","MZN","NAD","NGN","NIO","NOK","NPR","NZD","OMR","PAB","PEN","PGK","PHP","PKR","PLN","PYG","QAR","RON","RSD","RUB","RWF","SAR","SBD","SCR","SDG","SEK","SGD","SHP","SLL","SOS","SRD","SSP","STN","SVC","SYP","SZL","THB","TJS","TMT","TND","TOP","TRY","TTD","TVD","TWD","TZS","UAH","UGX","USD","USN","UYI","UYU","UZS","VEF","VND","VUV","WST","XAF","XAG","XAU","XBA","XBB","XBC","XBD","XCD","XDR","XOF","XPD","XPF","XPT","XSU","XTS","XUA","XXX","YER","ZAR","ZMW","ZWL"]
+  
+  HumanName:
+    type: Element
+    description: |
+      A name of a human with text, parts and usage information.
+    properties:
+      use?:
+        type: code
+        enum: [usual, official ,temp, nickname, anonymous, old, maiden]
+      text?:
+        type: string
+        description: Text representation of the full name
+      family?:
+        description: Family name (often called 'Surname')
+        type: string
+      given?:
+        description: Given names (not always 'first'). Includes middle names
+        type: string[]
+      prefix?:
+        description: Parts that come before the name
+        type: string[]
+      suffix?:
+        description: Parts that come after the name
+        type: string[]
+      period?:
+        description: Time period when name was/is in use
+        type: Period
+
+  Address:
+    type: Element
+    description: |
+      An address expressed using postal conventions (as opposed to GPS or other location definition formats).
+      This data type may be used to convey addresses for use in delivering mail as well as for visiting locations which might not be valid for mail delivery.
+      There are a variety of postal address formats defined around the world.
+    properties:
+      use?:
+        description: home | work | temp | old - purpose of this address
+        type: code
+        enum: [home, work, temp, old, billing]
+      type?:
+        description: address type
+        type: code
+        enum: [postal, physical, both]
+      text?:
+        description: Text representation of the address
+        type: string
+      line?:
+        description: Street name, number, direction & P.O. Box etc.
+        type: string[]
+      city?:
+        description: Name of city, town etc.
+        type: string
+      district?:
+        description: District name (aka county)
+        type: string
+      state?:
+        description: Sub-unit of country (abbreviations ok)
+        type: string
+      postalCode?:
+        description: Postal code for area
+        type: string
+      country?:
+        description: Country (e.g. can be ISO 3166 2 or 3 letter code)
+        type: string
+      period?:
+        description: Time period when address was/is in use
+        type: Period
+  
+  ContactPoint:
+    type: Element
+    description: |
+      Details for all kinds of technology-mediated contact points for a person or organization, including telephone, email, etc.
+    properties:
+      system?:
+        type: code
+        enum: [phone,fax,email,sms,pager,url,other]
+      value?:
+        description: The actual contact point details
+        type: string
+      use?:
+        description: purpose of this contact point
+        type: code
+        enum: [home, work, temp, old, mobile]
+      rank?:
+        description: Specify preferred order of use (1 = highest)
+        type: positiveInt
+      period?:
+        description: Time period when the contact point was/is in use
+        type: Period
+
+  BackboneElement:
+    type: Element
+    properties:
+      modifierExtension?:
+        description: Modifier Extensions
+        type: Extension[]
+
+  timingboundsDuration:
+    properties:
+      boundsDuration:
+        description: Length/Range of lengths, or (Start and/or end) limits
+        type: Duration
+  timingboundsRange:
+    properties:
+      boundsRange:
+        description: Length/Range of lengths, or (Start and/or end) limits
+        type: Range
+  timingboundsPeriod:
+    properties:
+      boundsPeriod:
+        description: Length/Range of lengths, or (Start and/or end) limits
+        type: Period
+
+  Timing: 
+    description: |
+      Specifies an event that may occur multiple times.
+      Timing schedules are used for specifying when events are expected or requested to occur, and may also be used to represent a schedule that was followed for past events.
+      A Timing schedule can be a list of events and/or criteria for when the event happens, which can be expressed in a structured form and/or as a code. When both event and a repeating specification are provided, the list of events should be understood as an interpretation of the information in the repeat structure.
+    type: Element
+    properties:
+      event?:
+        description: When the event occurs
+        type: array
+        items: dateTime
+      repeat?:
+        description: When the event is to occur
+        type: Element
+        properties:
+          bounds?:
+            description: Length/Range of lengths, or (Start and/or end) limits
+            type: timingboundsDuration | timingboundsRange | timingboundsPeriod
+          count?:
+            description: Number of times to repeat
+            type: positiveInt
+          countMax?:
+            description: Maximum number of times to repeat
+            type: positiveInt
+          duration?:
+            description: How long when it happens
+            type: decimal
+          durationMax?:
+            description: How long when it happens (Max)
+            type: decimal
+          durationUnit?:
+            description: s | min | h | d | wk | mo | a - unit of time (UCUM)
+            type: UnitOfTime
+          frequency?:
+            description: Event occurs frequency times per period
+            type: positiveInt
+          frequencyMax?:
+            description: Event occurs up to frequencyMax times per period
+            type: positiveInt
+          period?:
+            description: Event occurs frequency times per period
+            type: decimal
+          periodMax?:
+            description: Upper limit of period (3-4 hours)
+            type: decimal
+          periodUnit?:
+            description: s | min | h | d | wk | mo | a - unit of time (UCUM)
+            type: UnitOfTime
+            enum: [s, min, h, d, wk, mo, a]
+          dayOfWeek?:
+            description: mon | tue | wed | thu | fri | sat | sun
+            type: code
+            enum: [mon, tue, wed, thu, fri, sat, sun]
+          timeOfDay:
+            description: Time of day for action
+            type: time
+          when?:
+            description: Regular life events the event is tied to
+            type: code
+            enum: [HS, WAKE, C, CM, CD, CV, AC, ACM, ACD, ACV, PC, PCM, PCD, PCV]
+          offset:
+            description: Minutes from event (before or after)
+            type: unsignedInt
+      code?:
+        description: BID | TID | QID | AM | PM | QD | QOD | Q1H | Q2H | Q3H | Q4H | Q6H | Q8H | BED | WK | MO
+        type: CodeableConcept
+
+
+  SampledData:
+    type: Element
+    description: A series of measurements taken by a device
+    properties:
+      origin:
+        description: Zero value and units
+        type: Quantity
+      period:
+        description: Number of milliseconds between samples
+        type: decimal
+      factor?:
+        description: Multiply data by this before adding to origin
+        type: decimal
+      lowerLimit?:
+        description: Lower limit of detection
+        type: decimal
+      upperLimit?:
+        description: Upper limit of detection
+        type: decimal
+      dimensions:
+        description: Number of sample points at each time point
+        type: positiveInt
+      data:
+        description: Decimal values with spaces, or "E" | "U" | "L"
+        type: string
+        enum: [E, U, L]
+
+  Signature:
+    description: |
+      A Signature holds an electronic representation of a signature and its supporting context in a FHIR accessible form.
+      The signature may either be a cryptographic type (XML DigSig or a JWT), which is able to provide non-repudiation proof, or it may be a graphical image that represents a signature or a signature process.
+    properties:
+      type:
+        description: Indication of the reason the entity signed the object(s)
+        type: array
+        items: Coding
+      when:
+        description: When the signature was created
+        type: instant
+      who?:
+        description: Who signed
+        type: Reference
+      onBehalfOf?:
+        description: The party represented
+        type: Reference
+      targetFormat?:
+        type: code
+        description:  The technical format of the signed resources
+      sigFormat?:
+        type: code
+        description: The technical format of the signature
+      data?:
+        description: The actual signature content (XML DigSig. JWT, picture, etc.)
+        type: base64Binary
+
+  Identifier:
+    description: |
+      A numeric or alphanumeric string that is associated with a single object or entity within a given system.
+      Typically, identifiers are used to connect content in resources to external content available in other frameworks or protocols.
+      Identifiers are associated with objects, and may be changed or retired due to human or system process and errors.
+    properties:
+      use?:
+        description: usual | official | temp | secondary (If known)
+        type: code
+        enum: [usual, official, temp, secondary, old]
+      type?:
+        description: Description of identifier
+        type: CodeableConcept
+      system?:
+        description: The namespace for the identifier value
+        type: uri
+      value?:
+        description: The value that is unique
+        type: string
+      period?:
+        description: Time period when id is/was valid for use
+        type: Period
+      assigner?:
+        description: Organization that issued id (may be just text)
+        type: Reference
+
+  Contributor: 
+    type: Element
+    description: Contributor information Elements defined in Ancestors id, extension
+    properties:
+      type:
+        type: code
+        description: author | editor | reviewer | endorser
+        enum: [author , editor , reviewer , endorser]
+      name:
+        type: string 
+        description: Who contributed the content
+      contact?:
+        items: ContactDetail
+        description: Contact details of the contributor
+  
+  dataRequirementssubjectCodeableConcept:
+    properties:
+      subjectCodeableConcept:
+        description: E.g. Patient, Practitioner, RelatedPerson, Organization, Location, Device
+        type: CodeableConcept
+  dataRequirementssubjectReference:
+    properties:
+      subjectReference:
+        description: E.g. Patient, Practitioner, RelatedPerson, Organization, Location, Device
+        type: Reference
+
+  DataRequirement:
+    type: Element
+    description: Describes a required data item Elements defined in Ancestors id, extension
+    properties:
+      type: 
+        type: code
+        description: The type of the required data
+      profile?:
+        type: canonical[]
+        description: The profile of the required data
+      subject?:
+        description: E.g. Patient, Practitioner, RelatedPerson, Organization, Location, Device
+        type: dataRequirementssubjectCodeableConcept | dataRequirementssubjectReference
+      mustSupport?:
+        type: string[]
+        description: Indicates specific structure elements that are referenced by the knowledge module
+      codeFilter?:
+        type: array
+        description: What codes are expected + Rule Either a path or a searchParam must be provided, but not both
+        items: 
+          type: Element 
+          properties:
+            path?: 
+              type: string
+              description: A code-valued attribute to filter on
+            searchParam?: 
+              type: string
+              description: A coded (token) parameter to search on
+            valueSet?: 
+              type: canonical
+              description: Valueset for the filter
+            code?: 
+              type: Coding[]
+              description: What code is expected
+      dateFilter?:
+        type: array
+        description:
+        items:
+          type: Element
+          properties:
+            path?: 
+              type: string
+              description: A date-valued attribute to filter on
+            searchParam?: 
+              type: string
+              description: A date valued parameter to search on
+            value?:
+              description: The value of the filter, as a Period, DateTime, or Duration value
+              type: enumvalueDateTime | enumvaluePeriod | enumvalueDuration
+      limit?:
+        type: positiveInt
+        description: Number of results
+      sort?:
+        type: array
+        description: Order of the results
+        items:
+          type: Element
+          properties:
+            path: 
+              type: string
+              description: The name of the attribute to perform the sort
+            direction: 
+              type: code
+              enum: [ascending , descending]
+              description: ascending | descending
+            
+  Expression: 
+    type: Element
+    description: |
+      An expression that can be used to generate a value
+      + Rule: An expression or a reference must be provided
+      Elements defined in Ancestors: id, extension
+    properties:
+      description?:
+        type: string
+        description: Natural language description of the condition
+      name?:
+        type: id
+        description: Short name assigned to expression for reuse
+      language:
+        type: code
+        description: text/cql | text/fhirpath | application/x-fhir-query
+        enum: [text/cql , text/fhirpath , application/x-fhir-query]
+      expression?:
+        type: string
+        description: Expression in specified language
+      reference?:
+        type: uri
+        description: Where the expression is found
+
+
+  ParameterDefinition:
+    type: Element
+    description: |
+      Definition of a parameter to a module
+      Elements defined in Ancestors: id, extension
+
+    properties:
+      name?:
+        type: code
+        description: Name used to access the parameter value
+      use:
+        type: code
+        description: in | out
+        enum: [in , out]
+      min?:
+        type: integer
+        description: Minimum cardinality
+      max?:
+        type: string
+        description: Maximum cardinality (a number of *)
+      documentation?:
+        type: string
+        description: A brief description of the parameter
+      type?:
+        type: code
+        description:
+      profile?:
+        type: canonical
+        description: What profile the value is expected to be
+
+  RelatedArtifact:
+    type: Element
+    description: |
+      Related artifacts for a knowledge resource
+      Elements defined in Ancestors: id, extension
+    properties:
+      type:
+        type: code
+        enum: [documentation , justification , citation , predecessor , successor , derived-from , depends-on , composed-of]
+        description: documentation | justification | citation | predecessor | successor | derived-from | depends-on | composed-of
+      label?:
+        type: string
+        description: Short label
+      display?:
+        type: string
+        description: Brief description of the related artifact
+      citation?:
+        type: markdown
+        description: Bibliographic citation for the artifact
+      url?:
+        type: url
+        description: Where the artifact can be accessed
+      document?:
+        type: Attachment
+        description: What document is being referenced
+      resource?:
+        type: canonical
+        description: What resource is being referenced
+   
+  triggerDefinitiontimingTiming:
+    properties:
+      timingTiming:
+        description: Timing of the event
+        type: Timing
+  triggerDefinitiontimingReference:
+    properties:
+      timingReference:
+        description: Timing of the event
+        type: Reference
+  triggerDefinitiontimingDate:
+    properties:
+      timingDate:
+        description: Timing of the event
+        type: date
+  triggerDefinitiontimingDateTime:
+    properties:
+      timingDateTime:
+        description: Timing of the event
+        type: dateTime
+
+  
+  TriggerDefinition:
+    type: Element
+    description: |  
+      Defines an expected trigger for a module Rule Either timing, or a data requirement, but not both + Rule A condition only if there is a data requirement + Rule A named event requires a name, a periodic event requires timing, and a data event requires data Elements defined in Ancestors id, extension
+    properties:
+      type:
+        type: code
+        enum: [named-event , periodic , data-changed , data-added , data-modified , data-removed , data-accessed , data-access-ended]
+        description: named-event | periodic | data-changed | data-added | data-modified | data-removed | data-accessed | data-access-ended
+      name?:
+        type: string
+        description: Name or URI that identifies the event
+      timing?:
+        description: Timing of the event
+        type: triggerDefinitiontimingTiming | triggerDefinitiontimingReference | triggerDefinitiontimingDate | triggerDefinitiontimingDateTime
+      data?:
+        type: DataRequirement[]
+        description: Triggering data of the event (multiple = 'and')
+      condition?:
+        type: Expression
+        description: Whether the event triggers (boolean expression)
+      
+  UsageContext:
+    type: Element
+    description: Describes the context of use for a conformance or knowledge resource Elements defined in Ancestors id, extension
+    properties:
+      code:
+        type: Coding
+        description:  Type of context being specified
+      value:
+        description: Value that defines the context
+        type: enumvalueCodeableConcept | enumvalueQuantity | enumvalueRange | enumvalueReference
+
+  defaultvalueInteger:
+    properties:
+      defaultValueInteger:
+        description: Value of extension.
+        type: integer
+  defaultvalueDecimal:
+    properties:
+      defaultValueDecimal:
+        description: Value of extension.
+        type: decimal
+  defaultvalueDateTime:
+    properties:
+      defaultValueDateTime:
+        description: Value of extension.
+        type: dateTime
+  defaultvalueDate:
+    properties:
+      defaultValueDate:
+        description: Value of extension.
+        type: date
+  defaultvalueInstant:
+    properties:
+      defaultValueInstant:
+        description: Value of extension.
+        type: instant
+  defaultvalueString:
+    properties:
+      defaultValueString:
+        description: Value of extension.
+        type: string
+  defaultvalueUri:
+    properties:
+      defaultValueUri:
+        description: Value of extension.
+        type: uri
+  defaultvalueBoolean:
+    properties:
+      defaultValueBoolean:
+        description: Value of extension.
+        type: boolean
+  defaultvalueCode:
+    properties:
+      defaultValueCode:
+        description: Value of extension.
+        type: code
+  defaultvalueBase64Binary:
+    properties:
+      defaultValueBase64Binary:
+        description: Value of extension.
+        type: base64Binary
+  defaultvalueCoding:
+    properties:
+      defaultValueCoding:
+        description: Value of extension.
+        type: Coding
+  defaultvalueCodeableConcept:
+    properties:
+      defaultValueCodeableConcept:
+        description: Value of extension.
+        type: CodeableConcept
+  defaultvalueAttachment:
+    properties:
+      defaultValueAttachment:
+        description: Value of extension.
+        type: Attachment
+  defaultvalueIdentifier:
+    properties:
+      defaultValueIdentifier:
+        description: Value of extension.
+        type: Identifier
+  defaultvalueQuantity:
+    properties:
+      defaultValueQuantity:
+        description: Value of extension.
+        type: Quantity
+  defaultvalueRange:
+    properties:
+      defaultValueRange:
+        description: Value of extension.
+        type: Range
+  defaultvaluePeriod:
+    properties:
+      defaultValuePeriod:
+        description: Value of extension.
+        type: Period
+  defaultvalueRatio:
+    properties:
+      defaultValueRatio:
+        description: Value of extension.
+        type: Range
+  defaultvalueHumanName:
+    properties:
+      defaultValueHumanName:
+        description: Value of extension.
+        type: HumanName
+  defaultvalueAddress:
+    properties:
+      defaultValueAddress:
+        description: Value of extension.
+        type: Address
+  defaultvalueContactPoint:
+    properties:
+      defaultValueContactPoint:
+        description: Value of extension.
+        type: ContactPoint
+  defaultvalueReference:
+    properties:
+      defaultValueReference:
+        description: Value of extension.
+        type: Reference
+  defaultvalueCanonical:
+    properties:
+      defaultValueCanonical:
+        description: Value of Extension
+        type: canonical
+  defaultvalueId:
+    properties:
+      defaultValueId:
+        description: Value of Extension
+        type: id
+  defaultvalueMarkdown:
+    properties:
+      defaultValueMarkdown:
+        description: Value of Extension
+        type: markdown
+  defaultvalueOid:
+    properties:
+      defaultValueOid:
+        description: Value of Extension
+        type: oid
+  defaultvaluePositiveInt:
+    properties:
+      defaultValuePositiveInt:
+        description: Value of Extension
+        type: positiveInt
+  defaultvalueTime:
+    properties:
+      defaultValueTime:
+        description: Value of Extension
+        type: time
+  defaultvalueUnsignedInt:
+    properties:
+      defaultValueUnsignedInt:
+        description: Value of Extension
+        type: unsignedInt
+  defaultvalueUrl:
+    properties:
+      defaultValueUrl:
+        description: Value of Extension
+        type: url
+  defaultvalueUuid:
+    properties:
+      defaultValueUuid:
+        description: Value of Extension
+        type: uuid
+  defaultvalueAge:
+    properties:
+      defaultValueAge:
+        description: Value of Extension
+        type: Age
+  defaultvalueAnnotation:
+    properties:
+      defaultValueAnnotation:
+        description: Value of Extension
+        type: Annotation
+  defaultvalueCount:
+    properties:
+      defaultValueCount:
+        description: Value of Extension
+        type: Count
+  defaultvalueDistance:
+    properties:
+      defaultValueDistance:
+        description: Value of Extension
+        type: Distance
+  defaultvalueDuration:
+    properties:
+      defaultValueDuration:
+        description: Value of Extension
+        type: Duration
+  defaultvalueMoney:
+    properties:
+      defaultValueMoney:
+        description: Value of Extension
+        type: Money
+  defaultvalueSampledData:
+    properties:
+      defaultValueSampledData:
+        description: Value of Extension
+        type: SampledData
+  defaultvalueSignature:
+    properties:
+      defaultValueSignature:
+        description: Value of Extension
+        type: Signature
+  defaultvalueTiming:
+    properties:
+      defaultValueTiming:
+        description: Value of Extension
+        type: Timing
+  defaultvalueContactDetail:
+    properties:
+      defaultValueContactDetail:
+        description: Value of Extension
+        type: ContactDetail
+  defaultvalueContributor:
+    properties:
+      defaultValueContributor:
+        description: Value of Extension
+        type: Contributor
+  defaultvalueDataRequirement:
+    properties:
+      defaultValueDataRequirement:
+        description: Value of Extension
+        type: DataRequirement
+  defaultvalueExpression:
+    properties:
+      defaultValueExpression:
+        description: Value of Extension
+        type: Expression
+  defaultvalueParameterDefinition:
+    properties:
+      defaultValueParameterDefinition:
+        description: Value of Extension
+        type: ParameterDefinition
+  defaultvalueRelatedArtifact:
+    properties:
+      defaultValueRelatedArtifact:
+        description: Value of Extension
+        type: RelatedArtifact
+  defaultvalueTriggerDefinition:
+    properties:
+      defaultValueTriggerDefinition:
+        description: Value of Extension
+        type: TriggerDefinition
+  defaultvalueUsageContext:
+    properties:
+      defaultValueUsageContext:
+        description: Value of Extension
+        type: UsageContext
+  defaultvalueDosage:
+    properties:
+      defaultValueDosage:
+        description: Value of Extension
+        type: Dosage
+  defaultvalueMeta:
+    properties:
+      defaultValueMeta:
+        description: Value of Extension
+        type: Meta
+  fixedvalueInteger:
+    properties:
+      fixedValueInteger:
+        description: Value must be exactly this 
+        type: integer 
+  fixedvalueDecimal: 
+    properties: 
+      fixedValueDecimal: 
+        description: Value must be exactly this
+        type: decimal
+  fixedvalueDateTime:
+    properties:
+      fixedValueDateTime:
+        description: Value must be exactly this
+        type: dateTime
+  fixedvalueDate:
+    properties:
+      fixedValueDate:
+        description: Value must be exactly this
+        type: date
+  fixedvalueInstant:
+    properties:
+      fixedValueInstant:
+        description: Value must be exactly this
+        type: instant
+  fixedvalueString:
+    properties:
+      fixedValueString:
+        description: Value must be exactly this
+        type: string
+  fixedvalueUri:
+    properties:
+      fixedValueUri:
+        description: Value must be exactly this
+        type: uri
+  fixedvalueBoolean:
+    properties:
+      fixedValueBoolean:
+        description: Value must be exactly this
+        type: boolean
+  fixedvalueCode:
+    properties:
+      fixedValueCode:
+        description: Value must be exactly this
+        type: code
+  fixedvalueBase64Binary:
+    properties:
+      fixedValueBase64Binary:
+        description: Value must be exactly this
+        type: base64Binary
+  fixedvalueCoding:
+    properties:
+      fixedValueCoding:
+        description: Value must be exactly this
+        type: Coding
+  fixedvalueCodeableConcept:
+    properties:
+      fixedValueCodeableConcept:
+        description: Value must be exactly this
+        type: CodeableConcept
+  fixedvalueAttachment:
+    properties:
+      fixedValueAttachment:
+        description: Value must be exactly this
+        type: Attachment
+  fixedvalueIdentifier:
+    properties:
+      fixedValueIdentifier:
+        description: Value must be exactly this
+        type: Identifier
+  fixedvalueQuantity:
+    properties:
+      fixedValueQuantity:
+        description: Value must be exactly this
+        type: Quantity
+  fixedvalueRange:
+    properties:
+      fixedValueRange:
+        description: Value must be exactly this
+        type: Range
+  fixedvaluePeriod:
+    properties:
+      fixedValuePeriod:
+        description: Value must be exactly this
+        type: Period
+  fixedvalueRatio:
+    properties:
+      fixedValueRatio:
+        description: Value must be exactly this
+        type: Range
+  fixedvalueHumanName:
+    properties:
+      fixedValueHumanName:
+        description: Value must be exactly this
+        type: HumanName
+  fixedvalueAddress:
+    properties:
+      fixedValueAddress:
+        description: Value must be exactly this
+        type: Address
+  fixedvalueContactPoint:
+    properties:
+      fixedValueContactPoint:
+        description: Value must be exactly this
+        type: ContactPoint
+  fixedvalueReference:
+    properties:
+      fixedValueReference:
+        description: Value must be exactly this
+        type: Reference
+  fixedvalueCanonical:
+    properties:
+      fixedValueCanonical:
+        description: Value must be exactly this
+        type: canonical
+  fixedvalueId:
+    properties:
+      fixedValueId:
+        description: Value must be exactly this
+        type: id
+  fixedvalueMarkdown:
+    properties:
+      fixedValueMarkdown:
+        description: Value must be exactly this
+        type: markdown
+  fixedvalueOid:
+    properties:
+      fixedValueOid:
+        description: Value must be exactly this
+        type: oid
+  fixedvaluePositiveInt:
+    properties:
+      fixedValuePositiveInt:
+        description: Value must be exactly this
+        type: positiveInt
+  fixedvalueTime:
+    properties:
+      fixedValueTime:
+        description: Value must be exactly this
+        type: time
+  fixedvalueUnsignedInt:
+    properties:
+      fixedValueUnsignedInt:
+        description: Value must be exactly this
+        type: unsignedInt
+  fixedvalueUrl:
+    properties:
+      fixedValueUrl:
+        description: Value must be exactly this
+        type: url
+  fixedvalueUuid:
+    properties:
+      fixedValueUuid:
+        description: Value must be exactly this
+        type: uuid
+  fixedvalueAge:
+    properties:
+      fixedValueAge:
+        description: Value must be exactly this
+        type: Age
+  fixedvalueAnnotation:
+    properties:
+      fixedValueAnnotation:
+        description: Value must be exactly this
+        type: Annotation
+  fixedvalueCount:
+    properties:
+      fixedValueCount:
+        description: Value must be exactly this
+        type: Count
+  fixedvalueDistance:
+    properties:
+      fixedValueDistance:
+        description: Value must be exactly this
+        type: Distance
+  fixedvalueDuration:
+    properties:
+      fixedValueDuration:
+        description: Value must be exactly this
+        type: Duration
+  fixedvalueMoney:
+    properties:
+      fixedValueMoney:
+        description: Value must be exactly this
+        type: Money
+  fixedvalueSampledData:
+    properties:
+      fixedValueSampledData:
+        description: Value must be exactly this
+        type: SampledData
+  fixedvalueSignature:
+    properties:
+      fixedValueSignature:
+        description: Value must be exactly this
+        type: Signature
+  fixedvalueTiming:
+    properties:
+      fixedValueTiming:
+        description: Value must be exactly this
+        type: Timing
+  fixedvalueContactDetail:
+    properties:
+      fixedValueContactDetail:
+        description: Value must be exactly this
+        type: ContactDetail
+  fixedvalueContributor:
+    properties:
+      fixedValueContributor:
+        description: Value must be exactly this
+        type: Contributor
+  fixedvalueDataRequirement:
+    properties:
+      fixedValueDataRequirement:
+        description: Value must be exactly this
+        type: DataRequirement
+  fixedvalueExpression:
+    properties:
+      fixedValueExpression:
+        description: Value must be exactly this
+        type: Expression
+  fixedvalueParameterDefinition:
+    properties:
+      fixedValueParameterDefinition:
+        description: Value must be exactly this
+        type: ParameterDefinition
+  fixedvalueRelatedArtifact:
+    properties:
+      fixedValueRelatedArtifact:
+        description: Value must be exactly this
+        type: RelatedArtifact
+  fixedvalueTriggerDefinition:
+    properties:
+      fixedValueTriggerDefinition:
+        description: Value must be exactly this
+        type: TriggerDefinition
+  fixedvalueUsageContext:
+    properties:
+      fixedValueUsageContext:
+        description: Value must be exactly this
+        type: UsageContext
+  fixedvalueDosage:
+    properties:
+      fixedValueDosage:
+        description: Value must be exactly this
+        type: Dosage
+  fixedvalueMeta:
+    properties:
+      fixedValueMeta:
+        description: Value must be exactly this
+        type: Meta
+
+
+  patternvalueInteger:
+    properties:
+      patternValueInteger:
+        description: Value must have at least these property values
+        type: integer
+  patternvalueDecimal:
+    properties:
+      patternValueDecimal:
+        description: Value must have at least these property values
+        type: decimal
+  patternvalueDateTime:
+    properties:
+      patternValueDateTime:
+        description: Value must have at least these property values
+        type: dateTime
+  patternvalueDate:
+    properties:
+      patternValueDate:
+        description: Value must have at least these property values
+        type: date
+  patternvalueInstant:
+    properties:
+      patternValueInstant:
+        description: Value must have at least these property values
+        type: instant
+  patternvalueString:
+    properties:
+      patternValueString:
+        description: Value must have at least these property values
+        type: string
+  patternvalueUri:
+    properties:
+      patternValueUri:
+        description: Value must have at least these property values
+        type: uri
+  patternvalueBoolean:
+    properties:
+      patternValueBoolean:
+        description: Value must have at least these property values
+        type: boolean
+  patternvalueCode:
+    properties:
+      patternValueCode:
+        description: Value must have at least these property values
+        type: code
+  patternvalueBase64Binary:
+    properties:
+      patternValueBase64Binary:
+        description: Value must have at least these property values
+        type: base64Binary
+  patternvalueCoding:
+    properties:
+      patternValueCoding:
+        description: Value must have at least these property values
+        type: Coding
+  patternvalueCodeableConcept:
+    properties:
+      patternValueCodeableConcept:
+        description: Value must have at least these property values
+        type: CodeableConcept
+  patternvalueAttachment:
+    properties:
+      patternValueAttachment:
+        description: Value must have at least these property values
+        type: Attachment
+  patternvalueIdentifier:
+    properties:
+      patternValueIdentifier:
+        description: Value must have at least these property values
+        type: Identifier
+  patternvalueQuantity:
+    properties:
+      patternValueQuantity:
+        description: Value must have at least these property values
+        type: Quantity
+  patternvalueRange:
+    properties:
+      patternValueRange:
+        description: Value must have at least these property values
+        type: Range
+  patternvaluePeriod:
+    properties:
+      patternValuePeriod:
+        description: Value must have at least these property values
+        type: Period
+  patternvalueRatio:
+    properties:
+      patternValueRatio:
+        description: Value must have at least these property values
+        type: Range
+  patternvalueHumanName:
+    properties:
+      patternValueHumanName:
+        description: Value must have at least these property values
+        type: HumanName
+  patternvalueAddress:
+    properties:
+      patternValueAddress:
+        description: Value must have at least these property values
+        type: Address
+  patternvalueContactPoint:
+    properties:
+      patternValueContactPoint:
+        description: Value must have at least these property values
+        type: ContactPoint
+  patternvalueReference:
+    properties:
+      patternValueReference:
+        description: Value must have at least these property values
+        type: Reference
+  patternvalueCanonical:
+    properties:
+      patternValueCanonical:
+        description: Value must have at least these property values
+        type: canonical
+  patternvalueId:
+    properties:
+      patternValueId:
+        description: Value must have at least these property values
+        type: id
+  patternvalueMarkdown:
+    properties:
+      patternValueMarkdown:
+        description: Value must have at least these property values
+        type: markdown
+  patternvalueOid:
+    properties:
+      patternValueOid:
+        description: Value must have at least these property values
+        type: oid
+  patternvaluePositiveInt:
+    properties:
+      patternValuePositiveInt:
+        description: Value must have at least these property values
+        type: positiveInt
+  patternvalueTime:
+    properties:
+      patternValueTime:
+        description: Value must have at least these property values
+        type: time
+  patternvalueUnsignedInt:
+    properties:
+      patternValueUnsignedInt:
+        description: Value must have at least these property values
+        type: unsignedInt
+  patternvalueUrl:
+    properties:
+      patternValueUrl:
+        description: Value must have at least these property values
+        type: url
+  patternvalueUuid:
+    properties:
+      patternValueUuid:
+        description: Value must have at least these property values
+        type: uuid
+  patternvalueAge:
+    properties:
+      patternValueAge:
+        description: Value must have at least these property values
+        type: Age
+  patternvalueAnnotation:
+    properties:
+      patternValueAnnotation:
+        description: Value must have at least these property values
+        type: Annotation
+  patternvalueCount:
+    properties:
+      patternValueCount:
+        description: Value must have at least these property values
+        type: Count
+  patternvalueDistance:
+    properties:
+      patternValueDistance:
+        description: Value must have at least these property values
+        type: Distance
+  patternvalueDuration:
+    properties:
+      patternValueDuration:
+        description: Value must have at least these property values
+        type: Duration
+  patternvalueMoney:
+    properties:
+      patternValueMoney:
+        description: Value must have at least these property values
+        type: Money
+  patternvalueSampledData:
+    properties:
+      patternValueSampledData:
+        description: Value must have at least these property values
+        type: SampledData
+  patternvalueSignature:
+    properties:
+      patternValueSignature:
+        description: Value must have at least these property values
+        type: Signature
+  patternvalueTiming:
+    properties:
+      patternValueTiming:
+        description: Value must have at least these property values
+        type: Timing
+  patternvalueContactDetail:
+    properties:
+      patternValueContactDetail:
+        description: Value must have at least these property values
+        type: ContactDetail
+  patternvalueContributor:
+    properties:
+      patternValueContributor:
+        description: Value must have at least these property values
+        type: Contributor
+  patternvalueDataRequirement:
+    properties:
+      patternValueDataRequirement:
+        description: Value must have at least these property values
+        type: DataRequirement
+  patternvalueExpression:
+    properties:
+      patternValueExpression:
+        description: Value must have at least these property values
+        type: Expression
+  patternvalueParameterDefinition:
+    properties:
+      patternValueParameterDefinition:
+        description: Value must have at least these property values
+        type: ParameterDefinition
+  patternvalueRelatedArtifact:
+    properties:
+      patternValueRelatedArtifact:
+        description: Value must have at least these property values
+        type: RelatedArtifact
+  patternvalueTriggerDefinition:
+    properties:
+      patternValueTriggerDefinition:
+        description: Value must have at least these property values
+        type: TriggerDefinition
+  patternvalueUsageContext:
+    properties:
+      patternValueUsageContext:
+        description: Value must have at least these property values
+        type: UsageContext
+  patternvalueDosage:
+    properties:
+      patternValueDosage:
+        description: Value must have at least these property values
+        type: Dosage
+  patternvalueMeta:
+    properties:
+      patternValueMeta:
+        description: Value must have at least these property values
+        type: Meta
+
+  minvalueInteger:
+    properties:
+      minValueInteger:
+        description: Minimum Allowed Value (for some types)
+        type: integer
+  minvalueDecimal:
+    properties:
+      minValueDecimal:
+        description: Minimum Allowed Value (for some types)
+        type: decimal
+  minvalueDateTime:
+    properties:
+      minValueDateTime:
+        description: Minimum Allowed Value (for some types)
+        type: dateTime
+  minvalueDate:
+    properties:
+      minValueDate:
+        description: Minimum Allowed Value (for some types)
+        type: date
+  minvalueInstant:
+    properties:
+      minValueInstant:
+        description: Minimum Allowed Value (for some types)
+        type: instant
+  minvalueTime:
+    properties:
+      minValueTime:
+        description: Minimum Allowed Value (for some types)
+        type: time
+  minvalueUnsignedInt:
+    properties:
+      minValueUnsignedInt:
+        description: Minimum Allowed Value (for some types)
+        type: unsignedInt
+  minvaluePositiveInt:
+    properties:
+      minValuePositiveInt:
+        description: Minimum Allowed Value (for some types)
+        type: positiveInt
+  minvalueQuantity:
+    properties:
+      minValueQuantity:
+        description: Minimum Allowed Value (for some types)
+        type: Quantity     
+
+    
+  maxvalueInteger:
+    properties:
+      maxValueInteger:
+        description: Maximum Allowed Value (for some types)
+        type: integer
+  maxvalueDecimal:
+    properties:
+      maxValueDecimal:
+        description: Maximum Allowed Value (for some types)
+        type: decimal
+  maxvalueDateTime:
+    properties:
+      maxValueDateTime:
+        description: Maximum Allowed Value (for some types)
+        type: dateTime
+  maxvalueDate:
+    properties:
+      maxValueDate:
+        description: Maximum Allowed Value (for some types)
+        type: date
+  maxvalueInstant:
+    properties:
+      maxValueInstant:
+        description: Maximum Allowed Value (for some types)
+        type: instant
+  maxvalueTime:
+    properties:
+      maxValueTime:
+        description: Maximum Allowed Value (for some types)
+        type: time
+  maxvalueUnsignedInt:
+    properties:
+      maxValueUnsignedInt:
+        description: Maximum Allowed Value (for some types)
+        type: unsignedInt
+  maxvaluePositiveInt:
+    properties:
+      maxValuePositiveInt:
+        description: Maximum Allowed Value (for some types)
+        type: positiveInt
+  maxvalueQuantity:
+    properties:
+      maxValueQuantity:
+        description: Maximum Allowed Value (for some types)
+        type: Quantity
+  
+  ElementDefinition:
+    type: BackboneElement
+    description: |
+      Definition of an element in a resource or extension
+      + Rule: Min <= Max
+      + Rule: if the element definition has a contentReference, it cannot have type, defaultValue, fixed, pattern, example, minValue, maxValue, maxLength, or binding
+      + Rule: Fixed value may only be specified if there is one type
+      + Rule: Pattern may only be specified if there is one type
+      + Rule: Pattern and fixed are mutually exclusive
+      + Rule: Binding can only be present for coded elements, string, and uri
+      + Rule: Types must be unique by code
+      + Rule: Constraints must be unique by key
+      + Rule: default value and meaningWhenMissing are mutually exclusive
+      + Rule: sliceName must be composed of proper tokens separated by "/"
+      + Rule: Must have a modifier reason if isModifier = true
+      + Rule: Element names cannot include some special characters
+      + Warning: Element names should be simple alphanumerics with a max of 64 characters, or code generation tools may be broken
+      + Rule: sliceIsConstraining can only appear if slicename is present
+    properties:
+      path:
+        type: string
+        description: Path of the element in the hierarchy of elements
+      representation?:
+        description: xmlAttr | xmlText | typeAttr | cdaText | xhtml
+        items:
+          type: code
+          enum: [xmlAttr , xmlText , typeAttr , cdaText , xhtml]
+      sliceName?:
+        description: Name for this particular element (in a set of slices)
+        type: string
+      sliceIsConstraining?:
+        description: If this slice definition constrains an inherited slice definition (or not)
+        type: boolean
+      label?:
+        description: Name for element to display with or prompt for element
+        type: string
+      code?:
+        description: Corresponding codes in terminologies https://www.hl7.org/fhir/valueset-observation-codes.html
+        items: Coding
+      slicing?:
+        description: |
+          This element is sliced - slices follow
+          + Rule: If there are no discriminators, there must be a definition
+        type: Element
+        properties:
+          ordered?:
+            description: If elements must be in same order as slices
+            type: boolean
+          rules:
+            description: closed | open | openAtEnd
+            enum: [closed , open , openAtEnd]
+            type: code
+          discriminator?:
+            type: array
+            description: Element values that are used to distinguish the slices
+            items:
+              type: Element
+              properties:
+                type:
+                  type: code
+                  description: value | exists | pattern | type | profile
+                  enum: [value , exists , attern , type , profile]
+                path:
+                  description: Path to element value
+                  type:  string
+          description?:
+            type: string
+            description: Text description of how slicing works (or not)
+      short?:
+        description: Concise definition for space-constrained presentation
+        type: string
+      definition?:
+        description: Full formal definition as narrative text
+        type: markdown
+      alias?:
+        description: Other names
+        items:
+          type: string
+      comment?:
+        description: Comments about the use of this element
+        type: markdown
+      requirements?:
+        description: Why this resource has been created
+        type: markdown
+      max?:
+        description: |
+          Maximum Cardinality (a number or *)
+          + Rule: Max SHALL be a number or "*"
+        type: string
+      min?:
+        description: Minimum Cardinality
+        type: unsignedInt
+      base?: 
+        description: Base definition information for tools
+        type: Element
+        properties:
+          max:
+            description: Max cardinality of the base element
+            type: string
+          path:
+            description: Path that identifies the base element
+            type: string
+          min:
+            description: Min cardinality of the base element
+            type: unsignedInt
+      contentReference?:
+        description: Reference to definition of content for the element
+        type: uri
+      type?:
+        description: |
+          Data type and Profile for this element
+          + Rule: Aggregation may only be specified if one of the allowed types for the element is a reference
+          + Rule: targetProfile is only allowed if the type is Reference or canonical
+        type: array
+        items:
+          type: Element
+          properties:
+            targetProfile?:
+              description: Profile (StructureDefinition or IG) on the Reference/canonical target - one must apply
+              items:
+                type: canonical
+            aggregation?:
+              description: contained | referenced | bundled - how aggregated
+              items:
+                type: code
+                enum: [contained , referenced , bundled]
+            profile?:
+              description: Profiles (StructureDefinition or IG) - one must apply
+              items:
+                type: canonical
+            code:
+              description: Data type or Resource (reference to definition)
+              type: uri
+            versioning?:
+              description: either | independent | specific
+              enum: [either , independent , specific]
+              type: code
+      defaultValue?:
+        description: Specified value if missing from instance
+        type: defaultvalueInteger | defaultvalueDecimal | defaultvalueDateTime | defaultvalueDate | defaultvalueInstant | defaultvalueString | defaultvalueUri | defaultvalueBoolean | defaultvalueCode | defaultvalueBase64Binary | defaultvalueCoding | defaultvalueCodeableConcept | defaultvalueAttachment | defaultvalueIdentifier | defaultvalueQuantity | defaultvalueRange | defaultvaluePeriod | defaultvalueRatio | defaultvalueHumanName | defaultvalueAddress | defaultvalueContactPoint | defaultvalueReference | defaultvalueCanonical | defaultvalueId | defaultvalueMarkdown | defaultvalueOid | defaultvaluePositiveInt | defaultvalueTime | defaultvalueUnsignedInt | defaultvalueUrl | defaultvalueUuid | defaultvalueAge | defaultvalueAnnotation | defaultvalueCount | defaultvalueDistance | defaultvalueDuration | defaultvalueMoney | defaultvalueSampledData | defaultvalueSignature | defaultvalueTiming | defaultvalueContactDetail | defaultvalueContributor | defaultvalueDataRequirement | defaultvalueExpression | defaultvalueParameterDefinition | defaultvalueRelatedArtifact | defaultvalueTriggerDefinition | defaultvalueUsageContext | defaultvalueDosage | defaultvalueMeta
+      meaningWhenMissing?:
+        type: markdown
+        description: Implicit meaning when this element is missing
+      orderMeaning?:
+        description: What the order of the elements means
+        type: string
+      fixed?:
+        description: Value must be exactly this
+        type: fixedvalueInteger | fixedvalueDecimal | fixedvalueDateTime | fixedvalueDate | fixedvalueInstant | fixedvalueString | fixedvalueUri | fixedvalueBoolean | fixedvalueCode | fixedvalueBase64Binary | fixedvalueCoding | fixedvalueCodeableConcept | fixedvalueAttachment | fixedvalueIdentifier | fixedvalueQuantity | fixedvalueRange | fixedvaluePeriod | fixedvalueRatio | fixedvalueHumanName | fixedvalueAddress | fixedvalueContactPoint | fixedvalueReference | fixedvalueCanonical | fixedvalueId | fixedvalueMarkdown | fixedvalueOid | fixedvaluePositiveInt | fixedvalueTime | fixedvalueUnsignedInt | fixedvalueUrl | fixedvalueUuid | fixedvalueAge | fixedvalueAnnotation | fixedvalueCount | fixedvalueDistance | fixedvalueDuration | fixedvalueMoney | fixedvalueSampledData | fixedvalueSignature | fixedvalueTiming | fixedvalueContactDetail | fixedvalueContributor | fixedvalueDataRequirement | fixedvalueExpression | fixedvalueParameterDefinition | fixedvalueRelatedArtifact | fixedvalueTriggerDefinition | fixedvalueUsageContext | fixedvalueDosage | fixedvalueMeta
+      pattern?:
+        description: Value must have at least these property values
+        type: patternvalueInteger | patternvalueDecimal | patternvalueDateTime | patternvalueDate | patternvalueInstant | patternvalueString | patternvalueUri | patternvalueBoolean | patternvalueCode | patternvalueBase64Binary | patternvalueCoding | patternvalueCodeableConcept | patternvalueAttachment | patternvalueIdentifier | patternvalueQuantity | patternvalueRange | patternvaluePeriod | patternvalueRatio | patternvalueHumanName | patternvalueAddress | patternvalueContactPoint | patternvalueReference | patternvalueCanonical | patternvalueId | patternvalueMarkdown | patternvalueOid | patternvaluePositiveInt | patternvalueTime | patternvalueUnsignedInt | patternvalueUrl | patternvalueUuid | patternvalueAge | patternvalueAnnotation | patternvalueCount | patternvalueDistance | patternvalueDuration | patternvalueMoney | patternvalueSampledData | patternvalueSignature | patternvalueTiming | patternvalueContactDetail | patternvalueContributor | patternvalueDataRequirement | patternvalueExpression | patternvalueParameterDefinition | patternvalueRelatedArtifact | patternvalueTriggerDefinition | patternvalueUsageContext | patternvalueDosage | patternvalueMeta
+      example?:
+        description: Example value (as defined for type)
+        type: array
+        items: 
+          type: Element
+          properties:
+            value:
+              description: Value of Example (one of allowed types)
+            label:
+              description: Describes the purpose of this example
+              type: string
+      minValue?:
+        type: minvalueInteger | minvalueDecimal | minvalueDateTime | minvalueDate | minvalueInstant | minvalueTime | minvalueUnsignedInt | minvaluePositiveInt | minvalueQuantity
+        description: Minimum Allowed Value (for some types)
+      
+      maxValueDate?:
+        type: maxvalueInteger | maxvalueDecimal | maxvalueDateTime | maxvalueDate | maxvalueInstant | maxvalueTime | maxvalueUnsignedInt | maxvaluePositiveInt | maxvalueQuantity
+        description: Maximum Allowed Value (for some types)
+      
+      maxLength?:
+        description: Max length for strings
+        type: integer
+      condition?:
+        description: Reference to invariant about presence
+        items:
+          type: id
+      constraint?:
+        description: |
+          Condition that must evaluate to true
+          + Warning: Constraints should have an expression or else validators will not be able to enforce them
+        type: array
+        items: 
+          type: Element
+          properties:
+            severity:
+              description: error | warning
+              enum: [error , warning]
+              type: code
+            source?:
+              description: Reference to original source of constraint
+              type: canonical 
+            xpath?:
+              description: XPath expression of constraint
+              type: string
+            requirements?:
+              description: Why this constraint is necessary or appropriate
+              type: string
+            expression?:
+              description: FHIRPath expression of constraint
+              type: string
+            human:
+              description: Human description of constraint
+              type: string
+            key:
+              description: Target of 'condition' reference above
+              type: id
+      mustSupport?:
+        description: If the element must be supported
+        type: boolean
+      isModifierReason?: 
+        description: Reason that this element is marked as a modifier
+        type: string
+      isModifier?:
+        description: If this modifies the meaning of other elements
+        type: boolean
+      isSummary?:
+        description: Include when _summary = true?
+        type: boolean  
+      binding?:
+        description: |
+          ValueSet details if this is coded
+          + Rule: ValueSet SHALL start with http:// or https:// or urn:
+        type: Element
+        properties:
+          valueSet?:
+            description: Source of value set
+            type: string
+          description?:
+            description: Human explanation of the value set
+            type: string  
+          strength:
+            description: required | extensible | preferred | example
+            enum: [required , extensible , preferred , example]
+            type: code
+      mapping?:
+        description: Map element to another set of definitions
+        type: array
+        items: 
+          type: Element
+          properties:
+            comment?:
+              description: Comments about the mapping or its use
+              type: string
+            language?:
+              description: Computable language of mapping, https://www.hl7.org/fhir/valueset-mimetypes.html
+              type: code
+            identity:
+              description: Reference to mapping declaration
+              type: id
+            map:
+              description: Details of the mapping
+              type: string
+            
+  Resource:
+    description: Base Resource
+    properties:
+      id?:
+        description: Logical id of this artifact
+        type: id
+      meta?:
+        description: Metadata about the resource
+        type: Meta
+      implicitRules?:
+        description: A set of rules under which this content was created
+        type: uri
+      language?:
+        description: |
+          Language of the resource content.
+          Supported languages can be found at: https://www.hl7.org/fhir/valueset-languages.html
+        type: code
+
+  DomainResource:
+    description: |
+      A resource with narrative, extensions, and contained resources
+      + If the resource is contained in another resource, it SHALL NOT contain nested Resources
+      + If the resource is contained in another resource, it SHALL NOT contain any narrative
+      + If a resource is contained in another resource, it SHALL NOT have a meta.versionId or a meta.lastUpdated
+      + If the resource is contained in another resource, it SHALL be referred to from elsewhere in the resource
+
+    type: Resource
+
+    properties:
+      text?:
+        description: Text summary of the resource, for human interpretation
+        type: Narrative
+      contained?:
+        description: Contained, inline Resources
+        type: array
+        items: Resource
+      extension?:
+        description: Additional Content defined by implementations
+        type: Extension[]
+      modifierExtension?:
+        description: Extensions that cannot be ignored
+        type: Extension[]
+
+  Entry: 
+    description: |
+      Entry in the bundle - will have a resource or information
+      + Rule: must be a resource unless there's a request or response
+      + Rule: fullUrl cannot be a version specific reference
+      This repeating element order: For bundles of type 'document' and 'message', the first resource is special (must be Composition or MessageHeader respectively). For all bundles, the meaning of the order of entries depends on the bundle type
+    type: BackboneElement
+    properties:
+      link?:
+        type: array
+        description: Links related to this entry
+        items:
+          type: BackboneElement
+          properties:
+            relation:
+              type: string
+              description: See http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1
+            url:
+              type: uri
+              description: Reference details for the link
+      resource?:
+        type: Resource
+        description: A resource in the bundle
+      fullUrl?:
+        type: uri
+        description: URI for resource (Absolute URL server address or URI for UUID/OID)
+      search?:
+        description: Search related information
+        type: BackboneElement
+        properties:
+          mode?:
+            description: match | include | outcome - why this is in the result set
+            type: code
+            enum: [match, include, outcome]
+          score?:
+            type: decimal
+            description: Search ranking (between 0 and 1)
+      request?:
+        description: Additional execution information (transaction/batch/history)
+        type: BackboneElement
+        properties:
+          method:
+            description: GET | HEAD | POST | PUT | DELETE | PATCH
+            type: code
+            enum: [GET, PUT, POST, DELETE, HEAD, PATCH]
+          url:
+            type: uri
+            description: URL for HTTP equivalent of this entry
+          ifNoneMatch?:
+            type: string
+            description: For managing cache currency
+          ifModifiedSince?:
+            type: instant
+            description: For managing cache currency
+          ifMatch?:
+            type: string
+            description: For managing update contention
+          ifNoneExist?:
+            type: string
+            description: For conditional creates
+      response?:
+        description: Results of execution (transaction/batch/history)
+        type: BackboneElement
+        properties:
+          status:
+            type: string
+            description: Status response code (text optional)
+          location?:
+            type: uri
+            description: The location (if the operation returns a location)
+          etag?:
+            type: string
+            description: The Etag for the resource (if relevant)
+          lastModified?:
+            type: instant
+            description: Server's date time modified
+          outcome?:
+            type: Resource
+            description: OperationOutcome with hints and warnings (for batch/transaction)
+
+  Bundle:
+    type: Resource
+    description: |
+      Contains a collection of resources
+      + Rule: total only when a search or history
+      + Rule: entry.search only when a search
+      + Rule: entry.request mandatory for batch/transaction/history, otherwise prohibited
+      + Rule: entry.response mandatory for batch-response/transaction-response/history, otherwise prohibited
+      + Rule: FullUrl must be unique in a bundle, or else entries with the same fullUrl must have different meta.versionId (except in history bundles)
+      + Rule: A document must have an identifier with a system and a value
+      + Rule: A document must have a date
+      + Rule: A document must have a Composition as the first resource
+      + Rule: A message must have a MessageHeader as the first resource
+      Elements defined in Ancestors: id, meta, implicitRules, language
+    properties:
+      identifier?:
+        type: Identifier
+        description: Persistent identifier for the bundle
+      type:
+        type: code
+        description: document | message | transaction | transaction-response | batch | batch-response | history | searchset | collection
+        enum: [document, message, transaction,  transaction-response, batch, batch-response,  history, searchset, collection]
+      timestamp?:
+        type: instant
+        description: When the bundle was assembled
+      total?:
+        type: unsignedInt
+        description: If search, the total number of matches
+      link?:
+        description: Links related to this Bundle
+        type: array
+        items:
+          type: BackboneElement
+          properties:
+            relation:
+              type: string
+              description: See http://www.iana.org/assignments/link-relations/link-relations.xhtml#link-relations-1
+            url:
+              type: uri
+              description: Reference details for the link
+      entry?: 
+        type: array
+        description: |
+          Entry in the bundle - will have a resource or information
+          + Rule: must be a resource unless there's a request or response
+          + Rule: fullUrl cannot be a version specific reference
+          This repeating element order: For bundles of type 'document' and 'message', the first resource is special (must be Composition or MessageHeader respectively). For all bundles, the meaning of the order of entries depends on the bundle type
+        items:
+          type: Entry
+
+      signature?:
+        type: Signature
+        description: Digital Signature
+
+  OperationOutcome:
+    type: DomainResource
+    description: Information about the success/failure of an action. Elements defined in Ancestors id, meta, implicitRules, language, text, contained, extension, modifierExtension
+    properties:
+      issue:
+        type: BackboneElement
+        description: 
+        properties:
+          severity:
+            type: code
+            description: fatal | error | warning | information
+            enum: [fatal , error , warning , information]
+          code:
+            type: code
+            description: Error or warning code
+            enum: [invalid, structure, required, value, invariant, security, login, unknown, expired, forbidden, suppressed, processing, not-supported, duplicate, multiple-matches, not-found, deleted, too-long, code-invalid, extension, too-costly, business-rule, conflict, transient, lock-error, no-store, exception, timeout, incomplete, throttled, informational]
+          details?:
+            type: CodeableConcept
+            description: Additional details about the error
+          diagnostics?:
+            type: string
+            description: Additional diagnostic information about the issue
+          location?:
+            type: string[]
+            description: Deprecated Path of element(s) related to issue
+          expression?:
+            type: string[]
+            description: FHIRPath of element(s) related to issue
+
+      
+

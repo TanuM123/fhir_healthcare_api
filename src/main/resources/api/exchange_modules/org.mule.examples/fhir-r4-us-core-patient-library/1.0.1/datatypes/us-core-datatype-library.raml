@@ -1,0 +1,216 @@
+#%RAML 1.0 Library
+
+uses:
+  FHIR_commons: /exchange_modules/org.mule.examples/fhir-r4-commons-library/1.0.0/fhir-r4-commons-library.raml
+
+types:  
+  ExtensionPatient:
+    type: FHIR_commons.Element
+    description: | 
+      Optional Extensions Element + Rule Must have either extensions or value[x], not both Elements defined in Ancestors id, extension
+    properties:
+      url: 
+        type: FHIR_commons.uri
+        description: identifies the meaning of the extension
+      value?: 
+        type: any
+        description: Value of extension
+
+  us-core-race:
+    type: object
+    description: US Core Race Extension
+    properties:
+      id?:
+        type: string
+        description: Unique id for inter-element referencing
+      extension?:
+        items: ExtensionPatient
+        description: Additional content defined by implementations Slice Unordered, Open by value:url 
+      ombCategory?:
+        type: array
+        minItems: 0
+        maxItems: 5
+        items:
+          type: ExtensionPatient
+          properties:
+            id?: 
+              type: string
+              description: Unique id for inter-element referencing
+            url: FHIR_commons.uri
+            valueCoding: FHIR_commons.Coding
+            extension?:
+              description: Additional content defined by implementations Slice Unordered, Open by value:url 
+              type: array
+              items:
+                type: ExtensionPatient
+                properties:
+                  id?:
+                    type: string
+                    description: Unique id for inter-element referencing
+                  extension?:
+                    items: ExtensionPatient
+                    description: Additional content defined by implementations Slice Unordered, Open by value:url 
+                  url:
+                    type: FHIR_commons.uri
+                    description: identifies the meaning of the extension
+                  value?:
+                    type: FHIR_commons.enumvalueInteger | FHIR_commons.enumvalueDecimal | FHIR_commons.enumvalueDateTime | FHIR_commons.enumvalueDate | FHIR_commons.enumvalueInstant | FHIR_commons.enumvalueString | FHIR_commons.enumvalueUri | FHIR_commons.enumvalueBoolean | FHIR_commons.enumvalueCode | FHIR_commons.enumvalueBase64Binary | FHIR_commons.enumvalueCoding | FHIR_commons.enumvalueCodeableConcept | FHIR_commons.enumvalueAttachment | FHIR_commons.enumvalueIdentifier | FHIR_commons.enumvalueQuantity | FHIR_commons.enumvalueRange | FHIR_commons.enumvaluePeriod | FHIR_commons.enumvalueRatio | FHIR_commons.enumvalueHumanName | FHIR_commons.enumvalueAddress | FHIR_commons.enumvalueContactPoint | FHIR_commons.enumvalueReference | FHIR_commons.enumvalueCanonical | FHIR_commons.enumvalueId | FHIR_commons.enumvalueMarkdown | FHIR_commons.enumvalueOid | FHIR_commons.enumvaluePositiveInt | FHIR_commons.enumvalueTime | FHIR_commons.enumvalueUnsignedInt | FHIR_commons.enumvalueUrl | FHIR_commons.enumvalueUuid | FHIR_commons.enumvalueAge | FHIR_commons.enumvalueAnnotation | FHIR_commons.enumvalueCount | FHIR_commons.enumvalueDistance | FHIR_commons.enumvalueDuration | FHIR_commons.enumvalueMoney | FHIR_commons.enumvalueSampledData | FHIR_commons.enumvalueSignature | FHIR_commons.enumvalueTiming | FHIR_commons.enumvalueContactDetail | FHIR_commons.enumvalueContributor | FHIR_commons.enumvalueDataRequirement | FHIR_commons.enumvalueExpression | FHIR_commons.enumvalueParameterDefinition | FHIR_commons.enumvalueRelatedArtifact | FHIR_commons.enumvalueTriggerDefinition | FHIR_commons.enumvalueUsageContext | FHIR_commons.enumvalueDosage | FHIR_commons.enumvalueMeta
+                    description: Value of extension
+
+      detailed?:
+        type: array
+        items:
+          type: ExtensionPatient
+          properties:
+            id?: 
+              type: string
+              description: Unique id for inter-element referencing
+            url: FHIR_commons.uri
+            valueCoding: FHIR_commons.Coding
+            extension?:
+              description: Additional content defined by implementations Slice Unordered, Open by value:url 
+              type: array
+              items:
+                type: ExtensionPatient
+                properties:
+                  id?:
+                    type: string
+                    description: Unique id for inter-element referencing
+                  extension?:
+                    items: ExtensionPatient
+                    description: Additional content defined by implementations Slice Unordered, Open by value:url 
+                  url:
+                    type: FHIR_commons.uri
+                    description: identifies the meaning of the extension
+                  value?:
+                    type: FHIR_commons.enumvalueInteger | FHIR_commons.enumvalueDecimal | FHIR_commons.enumvalueDateTime | FHIR_commons.enumvalueDate | FHIR_commons.enumvalueInstant | FHIR_commons.enumvalueString | FHIR_commons.enumvalueUri | FHIR_commons.enumvalueBoolean | FHIR_commons.enumvalueCode | FHIR_commons.enumvalueBase64Binary | FHIR_commons.enumvalueCoding | FHIR_commons.enumvalueCodeableConcept | FHIR_commons.enumvalueAttachment | FHIR_commons.enumvalueIdentifier | FHIR_commons.enumvalueQuantity | FHIR_commons.enumvalueRange | FHIR_commons.enumvaluePeriod | FHIR_commons.enumvalueRatio | FHIR_commons.enumvalueHumanName | FHIR_commons.enumvalueAddress | FHIR_commons.enumvalueContactPoint | FHIR_commons.enumvalueReference | FHIR_commons.enumvalueCanonical | FHIR_commons.enumvalueId | FHIR_commons.enumvalueMarkdown | FHIR_commons.enumvalueOid | FHIR_commons.enumvaluePositiveInt | FHIR_commons.enumvalueTime | FHIR_commons.enumvalueUnsignedInt | FHIR_commons.enumvalueUrl | FHIR_commons.enumvalueUuid | FHIR_commons.enumvalueAge | FHIR_commons.enumvalueAnnotation | FHIR_commons.enumvalueCount | FHIR_commons.enumvalueDistance | FHIR_commons.enumvalueDuration | FHIR_commons.enumvalueMoney | FHIR_commons.enumvalueSampledData | FHIR_commons.enumvalueSignature | FHIR_commons.enumvalueTiming | FHIR_commons.enumvalueContactDetail | FHIR_commons.enumvalueContributor | FHIR_commons.enumvalueDataRequirement | FHIR_commons.enumvalueExpression | FHIR_commons.enumvalueParameterDefinition | FHIR_commons.enumvalueRelatedArtifact | FHIR_commons.enumvalueTriggerDefinition | FHIR_commons.enumvalueUsageContext | FHIR_commons.enumvalueDosage | FHIR_commons.enumvalueMeta
+                    description: Value of extension
+
+      text?:
+        type: ExtensionPatient     
+        description: Race Text
+        properties:
+          id?: 
+            type: string
+            description: Unique id for inter-element referencing
+          url: FHIR_commons.uri
+          valueCoding: FHIR_commons.Coding
+          extension?:
+            description: Additional content defined by implementations Slice Unordered, Open by value:url 
+            type: array
+            items:
+              type: ExtensionPatient
+              properties:
+                id?:
+                  type: string
+                  description: Unique id for inter-element referencing
+                extension?:
+                  items: ExtensionPatient
+                  description: Additional content defined by implementations Slice Unordered, Open by value:url 
+                url:
+                  type: FHIR_commons.uri
+                  description: identifies the meaning of the extension
+                value?:
+                    type: FHIR_commons.enumvalueInteger | FHIR_commons.enumvalueDecimal | FHIR_commons.enumvalueDateTime | FHIR_commons.enumvalueDate | FHIR_commons.enumvalueInstant | FHIR_commons.enumvalueString | FHIR_commons.enumvalueUri | FHIR_commons.enumvalueBoolean | FHIR_commons.enumvalueCode | FHIR_commons.enumvalueBase64Binary | FHIR_commons.enumvalueCoding | FHIR_commons.enumvalueCodeableConcept | FHIR_commons.enumvalueAttachment | FHIR_commons.enumvalueIdentifier | FHIR_commons.enumvalueQuantity | FHIR_commons.enumvalueRange | FHIR_commons.enumvaluePeriod | FHIR_commons.enumvalueRatio | FHIR_commons.enumvalueHumanName | FHIR_commons.enumvalueAddress | FHIR_commons.enumvalueContactPoint | FHIR_commons.enumvalueReference | FHIR_commons.enumvalueCanonical | FHIR_commons.enumvalueId | FHIR_commons.enumvalueMarkdown | FHIR_commons.enumvalueOid | FHIR_commons.enumvaluePositiveInt | FHIR_commons.enumvalueTime | FHIR_commons.enumvalueUnsignedInt | FHIR_commons.enumvalueUrl | FHIR_commons.enumvalueUuid | FHIR_commons.enumvalueAge | FHIR_commons.enumvalueAnnotation | FHIR_commons.enumvalueCount | FHIR_commons.enumvalueDistance | FHIR_commons.enumvalueDuration | FHIR_commons.enumvalueMoney | FHIR_commons.enumvalueSampledData | FHIR_commons.enumvalueSignature | FHIR_commons.enumvalueTiming | FHIR_commons.enumvalueContactDetail | FHIR_commons.enumvalueContributor | FHIR_commons.enumvalueDataRequirement | FHIR_commons.enumvalueExpression | FHIR_commons.enumvalueParameterDefinition | FHIR_commons.enumvalueRelatedArtifact | FHIR_commons.enumvalueTriggerDefinition | FHIR_commons.enumvalueUsageContext | FHIR_commons.enumvalueDosage | FHIR_commons.enumvalueMeta
+                    description: Value of extension
+
+
+  us-core-ethinicity:
+    type: object
+    description: US Core Ethinicity Extension
+    properties:
+      id?:
+        type: string
+        description: Unique id for inter-element referencing
+      url:
+        type: FHIR_commons.uri
+        description: "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity"
+      extension?:
+        items: ExtensionPatient
+        description: Additional content defined by implementations Slice Unordered, Open by value:url 
+      ombCategory?:
+        type: array
+        minItems: 0
+        maxItems: 1
+        items:
+          type: ExtensionPatient
+          properties:
+            id?: 
+              type: string
+              description: Unique id for inter-element referencing
+            url: FHIR_commons.uri
+            value: FHIR_commons.Coding
+            extension?:
+              description: Additional content defined by implementations Slice Unordered, Open by value:url 
+              type: array
+              items:
+                type: ExtensionPatient
+                properties:
+                  id?:
+                    type: string
+                    description: Unique id for inter-element referencing
+                  extension?:
+                    items: ExtensionPatient
+                    description: Additional content defined by implementations Slice Unordered, Open by value:url 
+                  url:
+                    type: FHIR_commons.uri
+                    description: identifies the meaning of the extension
+                  value?:
+                    type: FHIR_commons.enumvalueInteger | FHIR_commons.enumvalueDecimal | FHIR_commons.enumvalueDateTime | FHIR_commons.enumvalueDate | FHIR_commons.enumvalueInstant | FHIR_commons.enumvalueString | FHIR_commons.enumvalueUri | FHIR_commons.enumvalueBoolean | FHIR_commons.enumvalueCode | FHIR_commons.enumvalueBase64Binary | FHIR_commons.enumvalueCoding | FHIR_commons.enumvalueCodeableConcept | FHIR_commons.enumvalueAttachment | FHIR_commons.enumvalueIdentifier | FHIR_commons.enumvalueQuantity | FHIR_commons.enumvalueRange | FHIR_commons.enumvaluePeriod | FHIR_commons.enumvalueRatio | FHIR_commons.enumvalueHumanName | FHIR_commons.enumvalueAddress | FHIR_commons.enumvalueContactPoint | FHIR_commons.enumvalueReference | FHIR_commons.enumvalueCanonical | FHIR_commons.enumvalueId | FHIR_commons.enumvalueMarkdown | FHIR_commons.enumvalueOid | FHIR_commons.enumvaluePositiveInt | FHIR_commons.enumvalueTime | FHIR_commons.enumvalueUnsignedInt | FHIR_commons.enumvalueUrl | FHIR_commons.enumvalueUuid | FHIR_commons.enumvalueAge | FHIR_commons.enumvalueAnnotation | FHIR_commons.enumvalueCount | FHIR_commons.enumvalueDistance | FHIR_commons.enumvalueDuration | FHIR_commons.enumvalueMoney | FHIR_commons.enumvalueSampledData | FHIR_commons.enumvalueSignature | FHIR_commons.enumvalueTiming | FHIR_commons.enumvalueContactDetail | FHIR_commons.enumvalueContributor | FHIR_commons.enumvalueDataRequirement | FHIR_commons.enumvalueExpression | FHIR_commons.enumvalueParameterDefinition | FHIR_commons.enumvalueRelatedArtifact | FHIR_commons.enumvalueTriggerDefinition | FHIR_commons.enumvalueUsageContext | FHIR_commons.enumvalueDosage | FHIR_commons.enumvalueMeta
+                    description: Value of extension
+
+      detailed?:
+        type: array
+        items:
+          type: ExtensionPatient
+          properties:
+            id?: 
+              type: string
+              description: Unique id for inter-element referencing
+            url: FHIR_commons.uri
+            value: FHIR_commons.Coding
+            extension?:
+              description: Additional content defined by implementations Slice Unordered, Open by value:url 
+              type: array
+              items:
+                type: ExtensionPatient
+                properties:
+                  id?:
+                    type: string
+                    description: Unique id for inter-element referencing
+                  extension?:
+                    items: ExtensionPatient
+                    description: Additional content defined by implementations Slice Unordered, Open by value:url 
+                  url:
+                    type: FHIR_commons.uri
+                    description: identifies the meaning of the extension
+                  value?:
+                    type: FHIR_commons.enumvalueInteger | FHIR_commons.enumvalueDecimal | FHIR_commons.enumvalueDateTime | FHIR_commons.enumvalueDate | FHIR_commons.enumvalueInstant | FHIR_commons.enumvalueString | FHIR_commons.enumvalueUri | FHIR_commons.enumvalueBoolean | FHIR_commons.enumvalueCode | FHIR_commons.enumvalueBase64Binary | FHIR_commons.enumvalueCoding | FHIR_commons.enumvalueCodeableConcept | FHIR_commons.enumvalueAttachment | FHIR_commons.enumvalueIdentifier | FHIR_commons.enumvalueQuantity | FHIR_commons.enumvalueRange | FHIR_commons.enumvaluePeriod | FHIR_commons.enumvalueRatio | FHIR_commons.enumvalueHumanName | FHIR_commons.enumvalueAddress | FHIR_commons.enumvalueContactPoint | FHIR_commons.enumvalueReference | FHIR_commons.enumvalueCanonical | FHIR_commons.enumvalueId | FHIR_commons.enumvalueMarkdown | FHIR_commons.enumvalueOid | FHIR_commons.enumvaluePositiveInt | FHIR_commons.enumvalueTime | FHIR_commons.enumvalueUnsignedInt | FHIR_commons.enumvalueUrl | FHIR_commons.enumvalueUuid | FHIR_commons.enumvalueAge | FHIR_commons.enumvalueAnnotation | FHIR_commons.enumvalueCount | FHIR_commons.enumvalueDistance | FHIR_commons.enumvalueDuration | FHIR_commons.enumvalueMoney | FHIR_commons.enumvalueSampledData | FHIR_commons.enumvalueSignature | FHIR_commons.enumvalueTiming | FHIR_commons.enumvalueContactDetail | FHIR_commons.enumvalueContributor | FHIR_commons.enumvalueDataRequirement | FHIR_commons.enumvalueExpression | FHIR_commons.enumvalueParameterDefinition | FHIR_commons.enumvalueRelatedArtifact | FHIR_commons.enumvalueTriggerDefinition | FHIR_commons.enumvalueUsageContext | FHIR_commons.enumvalueDosage | FHIR_commons.enumvalueMeta
+                    description: Value of extension
+
+      text?:
+        type: ExtensionPatient     
+        properties:
+          id?: 
+            type: string
+            description: Unique id for inter-element referencing
+          url: FHIR_commons.uri
+          value: FHIR_commons.Coding
+          extension?:
+            description: Additional content defined by implementations Slice Unordered, Open by value:url 
+            type: array
+            items:
+              type: ExtensionPatient
+              properties:
+                id?:
+                  type: string
+                  description: Unique id for inter-element referencing
+                extension?:
+                  items: ExtensionPatient
+                  description: Additional content defined by implementations Slice Unordered, Open by value:url 
+                url:
+                  type: FHIR_commons.uri
+                  description: identifies the meaning of the extension
+                value?:
+                    type: FHIR_commons.enumvalueInteger | FHIR_commons.enumvalueDecimal | FHIR_commons.enumvalueDateTime | FHIR_commons.enumvalueDate | FHIR_commons.enumvalueInstant | FHIR_commons.enumvalueString | FHIR_commons.enumvalueUri | FHIR_commons.enumvalueBoolean | FHIR_commons.enumvalueCode | FHIR_commons.enumvalueBase64Binary | FHIR_commons.enumvalueCoding | FHIR_commons.enumvalueCodeableConcept | FHIR_commons.enumvalueAttachment | FHIR_commons.enumvalueIdentifier | FHIR_commons.enumvalueQuantity | FHIR_commons.enumvalueRange | FHIR_commons.enumvaluePeriod | FHIR_commons.enumvalueRatio | FHIR_commons.enumvalueHumanName | FHIR_commons.enumvalueAddress | FHIR_commons.enumvalueContactPoint | FHIR_commons.enumvalueReference | FHIR_commons.enumvalueCanonical | FHIR_commons.enumvalueId | FHIR_commons.enumvalueMarkdown | FHIR_commons.enumvalueOid | FHIR_commons.enumvaluePositiveInt | FHIR_commons.enumvalueTime | FHIR_commons.enumvalueUnsignedInt | FHIR_commons.enumvalueUrl | FHIR_commons.enumvalueUuid | FHIR_commons.enumvalueAge | FHIR_commons.enumvalueAnnotation | FHIR_commons.enumvalueCount | FHIR_commons.enumvalueDistance | FHIR_commons.enumvalueDuration | FHIR_commons.enumvalueMoney | FHIR_commons.enumvalueSampledData | FHIR_commons.enumvalueSignature | FHIR_commons.enumvalueTiming | FHIR_commons.enumvalueContactDetail | FHIR_commons.enumvalueContributor | FHIR_commons.enumvalueDataRequirement | FHIR_commons.enumvalueExpression | FHIR_commons.enumvalueParameterDefinition | FHIR_commons.enumvalueRelatedArtifact | FHIR_commons.enumvalueTriggerDefinition | FHIR_commons.enumvalueUsageContext | FHIR_commons.enumvalueDosage | FHIR_commons.enumvalueMeta
+                    description: Value of extension

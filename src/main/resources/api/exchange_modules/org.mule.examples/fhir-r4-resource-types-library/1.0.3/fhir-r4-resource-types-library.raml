@@ -1,0 +1,606 @@
+#%RAML 1.0 Library
+
+uses:
+  FHIR_commons: /exchange_modules/org.mule.examples/fhir-r4-commons-library/1.0.0/fhir-r4-commons-library.raml
+
+resourceTypes:
+  fhirResourceType:
+    post:
+      description: |
+        The create interaction creates a new resource in a server-assigned location. 
+        If the client wishes to have control over the id of a newly submitted resource, it should use the update interaction instead.
+      is: [create]
+      headers:
+        If-None-Exist:
+          required: false
+          description: name=value selective criteria
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      body:
+        application/fhir+json:
+          type: <<resourceName>>
+          example: <<postExample>>
+        application/fhir+xml:
+          type: <<resourceName>>
+          example: <<postExample>>
+      responses:
+        200:
+          description: No match, resource created.
+        412:
+          description: Precondition Failed error indicating the client's criteria were not selective enough.
+    
+    get:
+      description: This interaction searches a set of resources based on some filter criteria.
+      queryParameters: !include queryParams/searchParams.yaml
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      responses:
+        200:
+          body:
+            application/fhir+json:
+              type: <<bundleName>>
+              example: <<getExample>>
+            application/fhir+xml:
+              type: <<bundleName>>
+              example: <<getExample>>
+
+    put:
+      description: The conditional update interaction allows a client to update an existing resource based on some identification criteria, rather than by logical id.
+      is: [update, conditionalOperation]
+      queryParameters:
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]  
+      responses:
+        412:
+          description: |
+            Precondition Failed error indicating the client's criteria were not selective enough
+    
+    delete:
+      description: The conditional delete interaction allows a client to delete an existing resource based on some selection criteria, rather than by a specific logical id.
+      is: [delete, conditionalOperation]
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      queryParameters:
+      responses:
+        404:
+          description: Not found
+        412:
+          description: Precondition Failed error indicating the client's criteria were not selective enough.
+  
+  fhirResource:
+    get:
+      description: The read interaction accesses the current contents of a resource.
+      is: [read]
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      responses:
+        200:
+          body:
+            application/fhir+json:
+              example: <<getSingleExample>>
+              type: <<resourceName>>
+            application/fhir+xml:
+              example: <<getSingleExample>>
+              type: <<resourceName>>
+    put:
+      description: The update interaction creates a new current version for an existing resource or creates an initial version if no resource already exists for the given id.
+      is: [update]
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      body:
+        application/fhir+json:
+          example: <<putExample>>
+          type: <<resourceName>>
+        application/fhir+xml:
+          example: <<putExample>>
+          type: <<resourceName>>
+    delete:
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      description: The delete interaction removes an existing resource.
+      is: [delete]
+
+  fhirCompartment:
+    get:
+      is: [search]
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      responses:
+        200:
+          body:
+            application/fhir+json:
+              example: <<example>>
+            application/fhir+xml:
+              example: <<example>>
+
+  fhirSearch:
+    post:
+      description: This interaction searches a set of resources based on some filter criteria.
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      body:
+        application/x-www-form-urlencoded:
+          properties: !include queryParams/searchParams.yaml
+      responses:
+        200:
+          body:
+            application/fhir+json:
+              type: <<bundleName>>
+            application/fhir+xml:
+              type: <<bundleName>>
+    get:
+      description: This interaction searches a set of resources based on some filter criteria.
+    #  is: [{search: { bundleName: <<bundleName>>}}]
+    #  is: [search]
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      responses:
+        200:
+          body:
+            application/fhir+json:
+              type: <<bundleName>>
+            application/fhir+xml:
+              type: <<bundleName>>
+
+  fhirVersionedResource:
+    
+    get:
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      description: The vread interaction preforms a version specific read of the resource.
+      is: [vread: { resourceName: <<resourceName>> }]
+
+  fhirHistory:
+    get:
+      headers:
+        Accept:
+          type: string
+          required: false
+          enum: [ "*/*", "application/fhir+xml", "application/fhir+json" ]
+      description: The history interaction retrieves the history of either a particular resource or all resources of a given type.
+      is: [{history: { bundleName: <<bundleName>>}}]
+    
+
+traits:
+  vread:
+    queryParameters:
+      _format:
+        required: false
+        enum: [application/fhir+json, application/fhir+xml]
+    headers:
+      
+    responses:
+      200:
+        headers:
+          ETag: string
+          Last-Modified: string
+        
+        body:
+          application/fhir+json:
+            type: <<resourceName>>
+          
+          application/fhir+xml:
+            type: <<resourceName>>
+          
+
+      404: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+
+  read:
+    queryParameters:
+      _format:
+        required: false
+        enum: [application/fhir+json, application/fhir+xml]
+      _summary:
+        required: false
+        enum: ['true', 'false', text, data]
+    headers:
+      If-Modified-Since?:
+        type: string
+        required: false
+      If-None-Match?:
+        required: false
+      ETag?:
+        example: '1.0'
+      
+    responses:
+      200:
+        headers:
+          Last-Modified: datetime
+          ETag:
+            example: '1.0'
+      404: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      410:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+
+  patch:
+    
+    responses:
+      200:
+        description: Updated
+          
+      201:
+        description: Created
+        headers:
+          Location:
+            example: http://xxx/condidition/123/_history/1
+          Last-Modified: datetime
+          ETag:
+            example: '1.0'
+          
+      400: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      404:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      405: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      409:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      412: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      422:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome  
+        
+  update:
+    
+    responses:
+      200:
+        description: Updated
+          
+      201:
+        description: Created
+        headers:
+          Location:
+            example: http://xxx/condidition/123/_history/1
+          Last-Modified: datetime
+          ETag:
+            example: '1.0'
+          
+      400: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      404:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      405: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      409:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      412: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      422:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+
+  delete:
+    
+    responses:
+      204:
+        description: Deleted
+
+      404: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      405: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      409:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      412: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome    
+        
+  create:
+    
+    responses:
+      201:
+        description: Created
+        headers:
+          Location:
+            example: http://xxx/Condidition/123/_history/1
+          Last-Modified: datetime
+          ETag:
+            example: '1.0'
+      400: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      404:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      405: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      422:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+
+  transaction:
+    
+    responses:
+      200:
+        description: Created
+        headers:
+          Location:
+            example: http://xxx/Condidition/123/transaction/1
+          Last-Modified: datetime
+          ETag:
+            example: '1.0'
+      400: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      404:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      405: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      409:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+      412: 
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+          
+      422:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+      
+
+  search:
+    
+    queryParameters: !include queryParams/searchParams.yaml
+
+    responses:
+      200:
+        body:
+          application/fhir+json:
+            type: <<bundleName>>
+          application/fhir+xml:
+            type: <<bundleName>>
+
+      401:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+  
+  search-all:
+    responses:
+      200:
+        body:
+          application/fhir+json:
+            type: <<bundleName>>
+          application/fhir+xml:
+            type: <<bundleName>>
+
+      401:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+
+  capabilities:
+    
+    queryParameters:
+      _count: 
+        required: false
+      _since: 
+        required: false
+    responses:
+      200:
+        body:
+          application/fhir+json:
+          application/fhir+xml:
+      
+      404:
+        body:
+          application/fhir+json:
+            type: FHIR_commons.OperationOutcome
+          application/fhir+xml:
+            type: FHIR_commons.OperationOutcome
+
+  history-type:
+    
+    queryParameters:
+      _count: 
+        required: false
+      _since: 
+        required: false
+    responses:
+      200:
+        body:
+          application/fhir+json:
+            type: <<bundleName>>
+          application/fhir+xml:
+            type: <<bundleName>>
+            
+  history-all:
+    
+    queryParameters:
+      _count: 
+        required: false
+      _since: 
+        required: false
+    responses:
+      200:
+        body:
+          application/fhir+json:
+            type: <<bundleName>>
+          application/fhir+xml:
+            type: <<bundleName>>
+            
+
+  history:
+    
+    queryParameters:
+      _count: 
+        required: false
+      _since: 
+        required: false
+    responses:
+      200:
+        body:
+          application/fhir+json:
+            type: <<bundleName>>
+          application/fhir+xml:
+            type: <<bundleName>>
+            
+  conditionalOperation:
+    
+    queryParameters: !include queryParams/resourceParams.yaml

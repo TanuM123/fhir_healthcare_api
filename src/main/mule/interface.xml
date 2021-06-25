@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+    <http:listener-config name="fhir-r4-us-core-patient-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+    <apikit:config name="fhir-r4-us-core-patient-api-config" api="fhir-r4-us-core-patient-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="fhir-r4-us-core-patient-api-main">
+        <http:listener config-ref="fhir-r4-us-core-patient-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="fhir-r4-us-core-patient-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="fhir-r4-us-core-patient-api-console">
+        <http:listener config-ref="fhir-r4-us-core-patient-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="fhir-r4-us-core-patient-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="put:\Patient:fhir-r4-us-core-patient-api-config">
+        <logger level="INFO" message="put:\Patient:fhir-r4-us-core-patient-api-config" />
+    </flow>
+    <flow name="put:\Patient\(id):application\fhir+json:fhir-r4-us-core-patient-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="put:\Patient\(id):application\fhir+json:fhir-r4-us-core-patient-api-config" />
+    </flow>
+    <flow name="put:\Patient\(id):application\fhir+xml:fhir-r4-us-core-patient-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="put:\Patient\(id):application\fhir+xml:fhir-r4-us-core-patient-api-config" />
+    </flow>
+    <flow name="delete:\Patient:fhir-r4-us-core-patient-api-config">
+        <logger level="INFO" message="delete:\Patient:fhir-r4-us-core-patient-api-config" />
+    </flow>
+    <flow name="delete:\Patient\(id):fhir-r4-us-core-patient-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="delete:\Patient\(id):fhir-r4-us-core-patient-api-config" />
+    </flow>
+    <flow name="get:\Patient:fhir-r4-us-core-patient-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  resourceType: "Bundle",
+  id: "6f12a8e2-c256-489b-9532-364b85d554d9",
+  meta: {
+    lastUpdated: "2020-08-27T19:27:30.382+00:00"
+  },
+  "type": "searchset",
+  link: [
+    {
+      relation: "self",
+      url: "http://hapi.fhir.org/baseR4/Patient?_pretty=true"
+    }, 
+    {
+      relation: "next",
+      url: "http://hapi.fhir.org/baseR4?_getpages=6f12a8e2-c256-489b-9532-364b85d554d9&_getpagesoffset=20&_count=20&_pretty=true&_bundletype=searchset"
+    }
+  ],
+  entry: [
+    {
+      fullUrl: "http://hapi.fhir.org/baseR4/Patient/1202643",
+      resource: {
+        resourceType: "Patient",
+        id: "1202643",
+        meta: {
+          versionId: "1",
+          lastUpdated: "2020-06-12T23:27:00.094+00:00",
+          source: "#DOK0mE1uhdFvt8TH"
+        },
+        text: {
+          status: "generated",
+          div: "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Date of birth</td><td><span>13 October 1972</span></td></tr></tbody></table></div>"
+        },
+        gender: "male",
+        birthDate: "1972-10-13"
+      },
+      search: {
+        mode: "match"
+      }
+    }, 
+    {
+      fullUrl: "http://hapi.fhir.org/baseR4/Patient/1202644",
+      resource: {
+        resourceType: "Patient",
+        id: "1202644",
+        meta: {
+          versionId: "1",
+          lastUpdated: "2020-06-12T23:27:30.110+00:00",
+          source: "#G0avmd2LCpxfto12"
+        },
+        text: {
+          status: "generated",
+          div: "<div xmlns=\"http://www.w3.org/1999/xhtml\"><table class=\"hapiPropertyTable\"><tbody><tr><td>Date of birth</td><td><span>13 October 1972</span></td></tr></tbody></table></div>"
+        },
+        gender: "male",
+        birthDate: "1972-10-13"
+      },
+      search: {
+        mode: "match"
+      }
+    }
+  ]
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<flow-ref doc:name="GetAllPateints" doc:id="24059112-ae1e-4fdf-a8e8-81b6c7a33865" name="GetAllPatients"/>
+    </flow>
+    <flow name="get:\Patient\(id):fhir-r4-us-core-patient-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  resourceType: "Patient",
+  id: "example",
+  text: {
+    status: "generated",
+    div: "<div xmlns=\"http://www.w3.org/1999/xhtml\">\n\t\t\t<table>\n\t\t\t\t<tbody>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td>Name</td>\n\t\t\t\t\t\t<td>Peter James \n              <b>Chalmers</b> (&quot;Jim&quot;)\n            </td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td>Address</td>\n\t\t\t\t\t\t<td>534 Erewhon, Pleasantville, Vic, 3999</td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td>Contacts</td>\n\t\t\t\t\t\t<td>Home: unknown. Work: (03) 5555 6473</td>\n\t\t\t\t\t</tr>\n\t\t\t\t\t<tr>\n\t\t\t\t\t\t<td>Id</td>\n\t\t\t\t\t\t<td>MRN: 12345 (Acme Healthcare)</td>\n\t\t\t\t\t</tr>\n\t\t\t\t</tbody>\n\t\t\t</table>\n\t\t</div>"
+  },
+  identifier: [
+    {
+      use: "usual",
+      "type": {
+        coding: [
+          {
+            system: "http://terminology.hl7.org/CodeSystem/v2-0203",
+            code: "MR"
+          }
+        ]
+      },
+      system: "urn:oid:1.2.36.146.595.217.0.1",
+      value: "12345",
+      period: {
+        start: "2001-05-06"
+      },
+      assigner: {
+        display: "Acme Healthcare"
+      }
+    }
+  ],
+  active: true,
+  name: [
+    {
+      use: "official",
+      family: "Chalmers",
+      given: [
+        "Peter", 
+        "James"
+      ]
+    }, 
+    {
+      use: "usual",
+      given: [
+        "Jim"
+      ]
+    }, 
+    {
+      use: "maiden",
+      family: "Windsor",
+      given: [
+        "Peter", 
+        "James"
+      ],
+      period: {
+        end: "2002"
+      }
+    }
+  ],
+  telecom: [
+    {
+      use: "home"
+    }, 
+    {
+      system: "phone",
+      value: "(03) 5555 6473",
+      use: "work",
+      rank: 1
+    }, 
+    {
+      system: "phone",
+      value: "(03) 3410 5613",
+      use: "mobile",
+      rank: 2
+    }, 
+    {
+      system: "phone",
+      value: "(03) 5555 8834",
+      use: "old",
+      period: {
+        end: "2014"
+      }
+    }
+  ],
+  gender: "male",
+  birthDate: "1974-12-25",
+  "_birthDate": {
+    extension: [
+      {
+        url: "http://hl7.org/fhir/StructureDefinition/patient-birthTime",
+        valueDateTime: "1974-12-25T14:35:45-05:00"
+      }
+    ]
+  },
+  deceasedBoolean: false,
+  address: [
+    {
+      use: "home",
+      "type": "both",
+      text: "534 Erewhon St PeasantVille, Rainbow, Vic  3999",
+      line: [
+        "534 Erewhon St"
+      ],
+      city: "PleasantVille",
+      district: "Rainbow",
+      state: "Vic",
+      postalCode: "3999",
+      period: {
+        start: "1974-12-25"
+      }
+    }
+  ],
+  contact: [
+    {
+      relationship: [
+        {
+          coding: [
+            {
+              system: "http://terminology.hl7.org/CodeSystem/v2-0131",
+              code: "N"
+            }
+          ]
+        }
+      ],
+      name: {
+        family: "du Marché",
+        "_family": {
+          extension: [
+            {
+              url: "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+              valueString: "VV"
+            }
+          ]
+        },
+        given: [
+          "Bénédicte"
+        ]
+      },
+      telecom: [
+        {
+          system: "phone",
+          value: "+33 (237) 998327"
+        }
+      ],
+      address: {
+        use: "home",
+        "type": "both",
+        line: [
+          "534 Erewhon St"
+        ],
+        city: "PleasantVille",
+        district: "Rainbow",
+        state: "Vic",
+        postalCode: "3999",
+        period: {
+          start: "1974-12-25"
+        }
+      },
+      gender: "female",
+      period: {
+        start: "2012"
+      }
+    }
+  ],
+  managingOrganization: {
+    reference: "Organization/1"
+  }
+}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+    <flow name="post:\Patient:application\fhir+json:fhir-r4-us-core-patient-api-config">
+        <logger level="INFO" message="post:\Patient:application\fhir+json:fhir-r4-us-core-patient-api-config" />
+		<flow-ref doc:name="CreateOrUpdate-fhir+json" doc:id="c76dc782-ca1a-4619-99b4-f38623d05e83" name="CreateOrUpdate-fhir+json"/>
+    </flow>
+    <flow name="post:\Patient:application\fhir+xml:fhir-r4-us-core-patient-api-config">
+        <logger level="INFO" message="post:\Patient:application\fhir+xml:fhir-r4-us-core-patient-api-config" />
+    </flow>
+</mule>
