@@ -9,8 +9,7 @@
             {​​​​​​​
                 bat 'mvn clean install'
             }​​​​​​​
-        }​​​​​​​
-       ​​​​​​​
+        }​​​​​​​​​​​​​​
         stage('Deploy Application To Mulesoft Cloudhub')
         {​​​​​​​
             steps
@@ -22,7 +21,7 @@
         {​​​​​​​
             steps
             {​​​​​​​
-                bat 'newman run C:\\Users\\TMALVIYA\\AppData\\Local\\Postman\\app-8.7.0\\fhir_healthcare_api.postman_collection.json --disable-unicode'
+                bat 'C:\\Users\\TMALVIYA\\AppData\\Roaming\\npm\\node_modules\\newman run newman run C:\\Users\\TMALVIYA\\AppData\\Local\\Postman\\app-8.7.0\\fhir_healthcare_api.postman_collection.json --disable-unicode'
             }​​​​​​​
         }​​​​​​​
     }​​​​​​​
