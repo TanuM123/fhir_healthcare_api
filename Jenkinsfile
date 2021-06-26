@@ -22,7 +22,7 @@
         {​​​​​​​
             steps
             {​​​​​​​
-                bat 'newman run C:\\Users\\TMALVIYA\AppData\\Local\\Postman\\app-8.7.0\\fhir_healthcare_api.postman_collection.json --disable-unicode'
+                bat 'newman run C:\\Users\\TMALVIYA\\AppData\\Local\\Postman\\app-8.7.0\\fhir_healthcare_api.postman_collection.json --disable-unicode'
             }​​​​​​​
         }​​​​​​​
     }​​​​​​​
