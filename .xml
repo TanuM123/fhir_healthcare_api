@@ -9,6 +9,8 @@
 
 	<name>fhir_healthcare_api</name>
 	
+	
+
     <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -38,14 +40,12 @@
 					<workerType>Micro</workerType>
 					<environment>Sandbox</environment>
 					<muleVersion>4.3.0</muleVersion>
-					<applicationName>CG-Experience-Fhir2H-PatientAPI</applicationName>
+					<applicationName>CG-Experience-Fhir2-PatientAPI</applicationName>
 					</cloudHubDeployment>
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-	
-	
 
 	<dependencies>
         <dependency>
@@ -99,7 +99,5 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
-
 
 </project>
