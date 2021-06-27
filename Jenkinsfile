@@ -14,7 +14,7 @@ pipeline
 		{
 			steps
 			{
-				echo 'hello ,will be implementing'
+				echo 'hello ,will be implementing today'
 			}
 		}
 		stage('Deploy Application To Mulesoft Cloudhub')
