@@ -14,7 +14,7 @@ pipeline
 		{
 			steps
 			{
-				echo 'hello ,will be implementing on 28 /6/21'
+				bat 'mvn sonar:sonar -Dsonar.sources=src/ -Dsonar.host.url=http://localhost:9000 -Dsonar.login=4770b9e5496da44ce039099a69c9186f34f8b1df'
 			}
 		}
 		stage('Deploy Application To Mulesoft Cloudhub')
